@@ -5,9 +5,14 @@
 The objective of this project is to create a browser game. The game is similer to old space fighting alien shooting games as shown below.
 
 ### How to Get Started
-??
+
+
+
+
 ### example
 ![PC Galaxy Wars game](https://i.ytimg.com/vi/tJNj-x6Pf5o/hqdefault.jpg)
+
+
 example image of the desired game
 [credit](https://www.youtube.com/watch?app=desktop&v=tJNj-x6Pf5o)
 
