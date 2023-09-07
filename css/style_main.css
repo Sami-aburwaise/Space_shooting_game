@@ -1,4 +1,5 @@
 html,body{
+  background-color: black;
   height: 100%;
   width: 100%;
   margin: 0;
@@ -10,6 +11,7 @@ html,body{
 
 h1{
   font-size: 100px;
+  color: white;
 }
 
 #button {
@@ -17,7 +19,7 @@ h1{
   justify-content: center;
   align-items: center;
   width: 40%;
-  outline: solid black;
+  outline: solid white;
   border-radius: 10px;
   background-color: black;
   color: white;
@@ -26,7 +28,8 @@ h1{
 
 #options {
   width: 50%;
-  outline: solid black;
+  color: white;
+  outline: solid white;
   border-radius: 10px;
   display: flex;
   justify-content: space-around;
