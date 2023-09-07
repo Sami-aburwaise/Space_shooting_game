@@ -2,6 +2,7 @@ html,body {
   margin: 0 ;
   padding: 0;
   height: 100%;
+  min-width: 720px;
 }
 
 body{
@@ -21,7 +22,7 @@ body{
 
 
 #gamePanel {
-  outline: solid white;
+  outline: solid white 5px;
   width: 720px;
   height: 480px;
 }
