@@ -1,0 +1,54 @@
+html,body {
+  margin: 0 ;
+  padding: 0;
+  height: 100%;
+}
+
+body{
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+#title {
+  outline: solid white;
+  width: 100%;
+  text-align: center;
+}
+
+
+#gamePanel {
+  outline: solid white;
+  width: 720px;
+  height: 480px;
+}
+
+footer {
+  outline: solid white;
+  width: 100%;
+  height: 30px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#statsDisplay {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+h3{
+  margin: 0;
+}
+
+
+
+#quitButton {
+
+}
+
