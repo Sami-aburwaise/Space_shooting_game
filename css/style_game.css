@@ -42,6 +42,7 @@ footer {
   display: flex;
   justify-content: space-evenly;
 }
+
 h3{
   margin: 0;
 }
@@ -49,6 +50,7 @@ h3{
 
 
 #quitButton {
-
+  background-color: black;
+  color: white;
 }
 
