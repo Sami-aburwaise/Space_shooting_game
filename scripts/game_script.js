@@ -4,19 +4,18 @@ let panelHight = 480
 const gamePanel = document.querySelector('#gamePanel')
 
 class Entity {
-  constructor(type, x, y) {
+  constructor(type) {
     this.type = type
     this.speed = 5
     this.health = 100
-    this.x = 0
-    this.y = 0
     render: null
   }
-  spawn() {
+  spawn(x, y) {
     this.render = document.createElement('div')
     this.render.classList.add(this.type)
     gamePanel.appendChild(this.render)
-    this.render.style.left = this.x + 'px'
+    this.render.style.left = x + 'px'
+    this.render.style.top = y + 'px'
   }
   xPosition() {
     return (
@@ -56,13 +55,14 @@ class Entity {
   }
 }
 
-const player = new Entity('player', 100)
+const player = new Entity('player')
 
-player.spawn('player')
+player.spawn(100, 100)
 
 const makeFrame = () => {
   //what things run every frame
   player.moveDown()
+  player.moveRight()
 }
 
 const runFrames = setInterval(() => {
