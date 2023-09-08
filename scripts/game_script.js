@@ -83,7 +83,7 @@ const makeFrame = () => {
 
 const runFrames = setInterval(() => {
   makeFrame()
-}, 25)
+}, 20)
 
 document.body.addEventListener('keydown', (e) => {
   if (e.code == 'KeyD') {
@@ -108,4 +108,8 @@ document.body.addEventListener('keyup', (e) => {
   } else if (e.code == 'KeyS') {
     inputDown = false
   }
+})
+
+document.querySelector('button').addEventListener('click', () => {
+  window.location.href = 'index.html'
 })
