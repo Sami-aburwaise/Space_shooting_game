@@ -60,7 +60,6 @@ class Entity {
 }
 
 const player = new Entity('player')
-
 player.spawn(panelWidth / 2, panelHight - 40)
 
 const manageInput = () => {
@@ -113,3 +112,13 @@ document.body.addEventListener('keyup', (e) => {
 document.querySelector('button').addEventListener('click', () => {
   window.location.href = 'index.html'
 })
+
+for (let i = 0; i < 100; i++) {
+  const star = document.createElement('img')
+  star.setAttribute('src', 'images/star.png')
+  star.setAttribute('class', 'star')
+  star.style.width = Math.random() * 10 + 'px'
+  document.body.prepend(star)
+  star.style.left = Math.floor(Math.random() * innerWidth) + 'px'
+  star.style.top = Math.floor(Math.random() * window.innerHeight) + 'px'
+}
