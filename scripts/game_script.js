@@ -1,6 +1,10 @@
 //game panel dimentions
 let panelWidth = 720
 let panelHight = 480
+let inputRight = false
+let inputLeft = false
+let inputUP = false
+let inputDown = false
 const gamePanel = document.querySelector('#gamePanel')
 
 class Entity {
@@ -42,7 +46,7 @@ class Entity {
     this.render.style.left = this.xPosition() - this.speed + 'px'
   }
   moveUp = () => {
-    if (this.yPosition() > panelHight - this.render.offsetWidth) {
+    if (this.yPosition() < 0) {
       return
     }
     this.render.style.top = this.yPosition() - this.speed + 'px'
@@ -57,14 +61,51 @@ class Entity {
 
 const player = new Entity('player')
 
-player.spawn(100, 100)
+player.spawn(panelWidth / 2, panelHight - 40)
+
+const manageInput = () => {
+  if (inputLeft) {
+    player.moveLeft()
+  } else if (inputRight) {
+    player.moveRight()
+  }
+  if (inputUP) {
+    player.moveUp()
+  } else if (inputDown) {
+    player.moveDown()
+  }
+}
 
 const makeFrame = () => {
   //what things run every frame
-  player.moveDown()
-  player.moveRight()
+  manageInput()
 }
 
 const runFrames = setInterval(() => {
   makeFrame()
-}, 50)
+}, 25)
+
+document.body.addEventListener('keydown', (e) => {
+  if (e.code == 'KeyD') {
+    inputRight = true
+  } else if (e.code == 'KeyA') {
+    inputLeft = true
+  }
+  if (e.code == 'KeyW') {
+    inputUP = true
+  } else if (e.code == 'KeyS') {
+    inputDown = true
+  }
+})
+document.body.addEventListener('keyup', (e) => {
+  if (e.code == 'KeyD') {
+    inputRight = false
+  } else if (e.code == 'KeyA') {
+    inputLeft = false
+  }
+  if (e.code == 'KeyW') {
+    inputUP = false
+  } else if (e.code == 'KeyS') {
+    inputDown = false
+  }
+})
