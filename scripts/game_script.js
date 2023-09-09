@@ -1,3 +1,6 @@
+const playerImg = document.createElement('img')
+playerImg.setAttribute('src', 'images/spaceShip.png')
+
 //game panel dimentions
 let panelWidth = 720
 let panelHight = 480
@@ -12,13 +15,13 @@ class Entity {
     this.type = type
     this.speed = 5
     this.health = 100
-    render: null
+    this.render = null
   }
-  spawn(x, y) {
-    this.render = document.createElement('div')
+  spawn(x, y, render) {
+    this.render = render
     this.render.classList.add(this.type)
-    gamePanel.appendChild(this.render)
-    this.render.style.left = x + 'px'
+    gamePanel.appendChild(render)
+    render.style.left = x + 'px'
     this.render.style.top = y + 'px'
   }
   xPosition() {
@@ -59,11 +62,14 @@ class Entity {
   }
 }
 
+class Player extends Entity {
+  constructor(type) {
+    super(type)
+  }
+}
+
 const player = new Entity('player')
-player.spawn(panelWidth / 2, panelHight - 40)
-const image = document.createElement('img')
-image.setAttribute('src', 'images/spaceShip.png')
-player.render.appendChild(image)
+player.spawn(panelWidth / 2, panelHight - 100, playerImg)
 
 const manageInput = () => {
   if (inputLeft) {
