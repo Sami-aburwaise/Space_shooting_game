@@ -61,6 +61,9 @@ class Entity {
 
 const player = new Entity('player')
 player.spawn(panelWidth / 2, panelHight - 40)
+const image = document.createElement('img')
+image.setAttribute('src', 'images/spaceShip.png')
+player.render.appendChild(image)
 
 const manageInput = () => {
   if (inputLeft) {
