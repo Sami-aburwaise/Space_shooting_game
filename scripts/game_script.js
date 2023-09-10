@@ -66,9 +66,10 @@ class Player extends Entity {
   constructor(type) {
     super(type)
   }
+  shoot() {}
 }
 
-const player = new Entity('player')
+const player = new Player('player')
 player.spawn(panelWidth / 2, panelHight - 100, playerImg)
 
 const manageInput = () => {
