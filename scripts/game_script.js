@@ -1,6 +1,8 @@
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
 
+projectiles = []
+
 //game panel dimentions
 let panelWidth = 720
 let panelHight = 480
@@ -9,32 +11,31 @@ let inputLeft = false
 let inputUP = false
 let inputDown = false
 const gamePanel = document.querySelector('#gamePanel')
+let xPos = gamePanel.getBoundingClientRect('position').left
+let yPos = gamePanel.getBoundingClientRect('position').top
 
 class Entity {
   constructor(type) {
     this.type = type
-    this.speed = 5
-    this.health = 100
-    this.render = null
+    this.alive = true
   }
   spawn(x, y, render) {
     this.render = render
     this.render.classList.add(this.type)
-    gamePanel.appendChild(render)
-    render.style.left = x + 'px'
+    gamePanel.appendChild(this.render)
+    this.render.style.left = x + 'px'
     this.render.style.top = y + 'px'
   }
-  xPosition() {
-    return (
-      this.render.getBoundingClientRect('position').left -
-      gamePanel.getBoundingClientRect('position').left
-    )
+}
+
+class Player extends Entity {
+  constructor(type) {
+    super(type)
+    this.speed = 5
+    this.coolDown = 10
   }
-  yPosition() {
-    return (
-      this.render.getBoundingClientRect('position').top -
-      gamePanel.getBoundingClientRect('position').top
-    )
+  xPosition() {
+    return this.render.getBoundingClientRect('position').left - xPos
   }
   moveRight = () => {
     if (this.xPosition() > panelWidth - this.render.offsetWidth) {
@@ -48,8 +49,34 @@ class Entity {
     }
     this.render.style.left = this.xPosition() - this.speed + 'px'
   }
+  shoot = () => {
+    if (this.coolDown == 0) {
+      const projectile = new Projectile('projectile')
+      const projectileImg = document.createElement('img')
+      projectileImg.setAttribute('src', 'images/projectile.png')
+      projectile.spawn(
+        this.xPosition() - this.render.width,
+        panelHight - 180,
+        projectileImg
+      )
+      projectiles.push(projectile)
+      this.coolDown = 20
+    }
+  }
+}
+
+class Projectile extends Entity {
+  constructor(type) {
+    super(type)
+    this.speed = 30
+  }
+  yPosition() {
+    return this.render.getBoundingClientRect('position').top - yPos
+  }
   moveUp = () => {
-    if (this.yPosition() < 0) {
+    if (this.yPosition() < 10) {
+      projectiles.shift()
+      this.render.remove()
       return
     }
     this.render.style.top = this.yPosition() - this.speed + 'px'
@@ -62,15 +89,8 @@ class Entity {
   }
 }
 
-class Player extends Entity {
-  constructor(type) {
-    super(type)
-  }
-  shoot() {}
-}
-
 const player = new Player('player')
-player.spawn(panelWidth / 2, panelHight - 100, playerImg)
+player.spawn(panelWidth / 2, panelHight - 75, playerImg)
 
 const manageInput = () => {
   if (inputLeft) {
@@ -78,21 +98,26 @@ const manageInput = () => {
   } else if (inputRight) {
     player.moveRight()
   }
-  if (inputUP) {
-    player.moveUp()
-  } else if (inputDown) {
-    player.moveDown()
+  player.coolDown = player.coolDown > 0 ? (player.coolDown -= 1) : 0
+}
+
+manageProjectiles = () => {
+  if (projectiles.length != 0) {
+    projectiles.forEach((projectile) => {
+      projectile.moveUp()
+    })
   }
 }
 
 const makeFrame = () => {
   //what things run every frame
   manageInput()
+  manageProjectiles()
 }
 
 const runFrames = setInterval(() => {
   makeFrame()
-}, 20)
+}, 25)
 
 document.body.addEventListener('keydown', (e) => {
   if (e.code == 'KeyD') {
@@ -116,6 +141,12 @@ document.body.addEventListener('keyup', (e) => {
     inputUP = false
   } else if (e.code == 'KeyS') {
     inputDown = false
+  }
+})
+
+document.body.addEventListener('keypress', (e) => {
+  if (e.code == 'Space') {
+    player.shoot()
   }
 })
 

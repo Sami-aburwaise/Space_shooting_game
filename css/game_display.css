@@ -1,6 +1,13 @@
 .player{
   position: relative;
-  padding: 0;
   margin: 0;
-  width: 40px;
+  padding: 0;
+
+}
+
+.projectile {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 30px;
 }
