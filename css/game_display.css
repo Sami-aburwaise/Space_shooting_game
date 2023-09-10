@@ -1,13 +1,19 @@
 .player{
-  position: relative;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+
+}
+
+.enemy {
+  position: absolute;
   margin: 0;
   padding: 0;
 
 }
 
 .projectile {
-  position: relative;
+  position: absolute;
   margin: 0;
   padding: 0;
-  width: 30px;
 }

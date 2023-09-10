@@ -1,5 +1,8 @@
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
+
+const enemyImg = document.createElement('img')
+enemyImg.setAttribute('src', 'images/enemy.png')
 const scoresDisplay = document.querySelector('#scoresDisplay')
 const killsDisplay = document.querySelector('#killsDisplay')
 const accuracyDisplay = document.querySelector('#accuracyDisplay')
@@ -25,29 +28,32 @@ class Entity {
     this.render.style.left = x + 'px'
     this.render.style.top = y + 'px'
   }
+  xPosition() {
+    return this.render.getBoundingClientRect('position').left
+  }
+  yPosition() {
+    return this.render.getBoundingClientRect('position').top
+  }
 }
 
 class Player extends Entity {
   constructor(type) {
     super(type)
     this.speed = 5
-    this.coolDown = 10
+    this.coolDown = 15
     this.coolDownCounter = 0
     this.shoots = 0
     this.kills = 0
     this.scores = 0
   }
-  xPosition() {
-    return this.render.getBoundingClientRect('position').left - panelXpositon
-  }
   moveRight = () => {
-    if (this.xPosition() > panelWidth - this.render.offsetWidth) {
+    if (this.xPosition() > panelWidth + panelXpositon - this.render.width) {
       return
     }
     this.render.style.left = this.xPosition() + this.speed + 'px'
   }
   moveLeft = () => {
-    if (this.xPosition() < 0) {
+    if (this.xPosition() < panelXpositon) {
       return
     }
     this.render.style.left = this.xPosition() - this.speed + 'px'
@@ -57,13 +63,9 @@ class Player extends Entity {
       const projectile = new Projectile('projectile')
       const projectileImg = document.createElement('img')
       projectileImg.setAttribute('src', 'images/projectile.png')
-      projectile.spawn(
-        this.xPosition() - this.render.width,
-        panelHight - 100,
-        projectileImg
-      )
+      projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
       projectiles.push(projectile)
-      this.coolDownCounter = this.coolDown
+      this.coolDownCounter = 0 //this.coolDown
       this.shoots++
       updateStats()
     }
@@ -75,11 +77,8 @@ class Projectile extends Entity {
     super(type)
     this.speed = 30
   }
-  yPosition() {
-    return this.render.getBoundingClientRect('position').top - panelYpositon
-  }
   moveUp = () => {
-    if (this.yPosition() < 10) {
+    if (this.yPosition() < panelYpositon + 10) {
       projectiles.shift()
       this.render.remove()
       return
@@ -94,8 +93,57 @@ class Projectile extends Entity {
   }
 }
 
+class Enemy extends Entity {
+  constructor(type) {
+    super(type)
+    this.speed = 10
+    this.coolDown = 50
+    this.coolDownCounter = 0
+  }
+  moveRight = () => {
+    if (this.xPosition() > panelWidth + panelXpositon - this.render.width) {
+      return
+    }
+    this.render.style.left = this.xPosition() + this.speed + 'px'
+  }
+  moveLeft = () => {
+    if (this.xPosition() < panelXpositon) {
+      return
+    }
+    this.render.style.left = this.xPosition() - this.speed + 'px'
+  }
+  moveUp = () => {
+    console.log(this.yPosition())
+    if (this.yPosition() < panelYpositon) {
+      return
+    }
+    this.render.style.top = this.yPosition() - this.speed + 'px'
+  }
+  moveDown = () => {
+    if (this.yPosition() > panelYpositon) {
+      return
+    }
+    this.render.style.top = this.yPosition() + this.speed + 'px'
+  }
+  shoot = () => {
+    if (this.coolDownCounter == 0) {
+      const projectile = new Projectile('projectile')
+      const projectileImg = document.createElement('img')
+      projectileImg.setAttribute('src', 'images/projectile.png')
+      projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
+      projectiles.push(projectile)
+      this.coolDownCounter = 0 //this.coolDown
+      this.shoots++
+      updateStats()
+    }
+  }
+}
+
 const player = new Player('player')
-player.spawn(panelWidth / 2, panelHight - 75, playerImg)
+player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
+
+const enemy = new Enemy('enemy')
+enemy.spawn(panelXpositon + 20, panelYpositon, enemyImg)
 
 const manageInput = () => {
   if (inputLeft) {
@@ -125,6 +173,7 @@ const makeFrame = () => {
   //what things run every frame
   manageInput()
   manageProjectiles()
+  enemy.moveRight()
 }
 
 const runFrames = setInterval(() => {
@@ -159,7 +208,6 @@ document.body.addEventListener('keyup', (e) => {
 document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space') {
     player.shoot()
-    console.log(player.coolDownCounter)
   }
 })
 
