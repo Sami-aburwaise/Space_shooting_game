@@ -8,11 +8,9 @@ let panelWidth = 720
 let panelHight = 480
 let inputRight = false
 let inputLeft = false
-let inputUP = false
-let inputDown = false
 const gamePanel = document.querySelector('#gamePanel')
-let xPos = gamePanel.getBoundingClientRect('position').left
-let yPos = gamePanel.getBoundingClientRect('position').top
+let panelXpositon = gamePanel.getBoundingClientRect('position').left
+let panelYpositon = gamePanel.getBoundingClientRect('position').top
 
 class Entity {
   constructor(type) {
@@ -33,9 +31,10 @@ class Player extends Entity {
     super(type)
     this.speed = 5
     this.coolDown = 10
+    this.coolDownCounter = 0
   }
   xPosition() {
-    return this.render.getBoundingClientRect('position').left - xPos
+    return this.render.getBoundingClientRect('position').left - panelXpositon
   }
   moveRight = () => {
     if (this.xPosition() > panelWidth - this.render.offsetWidth) {
@@ -50,17 +49,17 @@ class Player extends Entity {
     this.render.style.left = this.xPosition() - this.speed + 'px'
   }
   shoot = () => {
-    if (this.coolDown == 0) {
+    if (this.coolDownCounter == 0) {
       const projectile = new Projectile('projectile')
       const projectileImg = document.createElement('img')
       projectileImg.setAttribute('src', 'images/projectile.png')
       projectile.spawn(
         this.xPosition() - this.render.width,
-        panelHight - 180,
+        panelHight - 100,
         projectileImg
       )
       projectiles.push(projectile)
-      this.coolDown = 20
+      this.coolDownCounter = this.coolDown
     }
   }
 }
@@ -71,7 +70,7 @@ class Projectile extends Entity {
     this.speed = 30
   }
   yPosition() {
-    return this.render.getBoundingClientRect('position').top - yPos
+    return this.render.getBoundingClientRect('position').top - panelYpositon
   }
   moveUp = () => {
     if (this.yPosition() < 10) {
@@ -98,7 +97,8 @@ const manageInput = () => {
   } else if (inputRight) {
     player.moveRight()
   }
-  player.coolDown = player.coolDown > 0 ? (player.coolDown -= 1) : 0
+  player.coolDownCounter =
+    player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
 }
 
 manageProjectiles = () => {
@@ -147,6 +147,7 @@ document.body.addEventListener('keyup', (e) => {
 document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space') {
     player.shoot()
+    console.log(player.coolDownCounter)
   }
 })
 
