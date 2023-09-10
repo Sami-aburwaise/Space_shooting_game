@@ -1,8 +1,9 @@
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
-
+const scoresDisplay = document.querySelector('#scoresDisplay')
+const killsDisplay = document.querySelector('#killsDisplay')
+const accuracyDisplay = document.querySelector('#accuracyDisplay')
 projectiles = []
-
 //game panel dimentions
 let panelWidth = 720
 let panelHight = 480
@@ -32,6 +33,9 @@ class Player extends Entity {
     this.speed = 5
     this.coolDown = 10
     this.coolDownCounter = 0
+    this.shoots = 0
+    this.kills = 0
+    this.scores = 0
   }
   xPosition() {
     return this.render.getBoundingClientRect('position').left - panelXpositon
@@ -60,6 +64,8 @@ class Player extends Entity {
       )
       projectiles.push(projectile)
       this.coolDownCounter = this.coolDown
+      this.shoots++
+      updateStats()
     }
   }
 }
@@ -99,6 +105,12 @@ const manageInput = () => {
   }
   player.coolDownCounter =
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
+}
+
+updateStats = () => {
+  scoresDisplay.innerText = 'scores: ' + player.scores
+  killsDisplay.innerText = 'kills: ' + player.kills
+  accuracyDisplay.innerText = 'accuracy: ' + player.kills / player.shoots + '%'
 }
 
 manageProjectiles = () => {
