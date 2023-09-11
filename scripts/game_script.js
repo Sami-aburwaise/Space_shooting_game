@@ -1,3 +1,8 @@
+const displayPanelH1 = document.querySelector('#displayPanelH1')
+
+let gameOver = true
+let level = 1
+
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
 
@@ -82,7 +87,6 @@ class Player extends Entity {
       projectileList.push(projectile)
       this.coolDownCounter = 0 //this.coolDown
       this.shoots += 1
-      updateStats()
     }
   }
   checkCollsion() {
@@ -100,7 +104,6 @@ class Player extends Entity {
       ) {
         projectile.alive = false
         this.alive = false
-        console.log('player got hit')
       }
     })
   }
@@ -148,7 +151,6 @@ class Enemy extends Entity {
       projectileList.push(projectile)
       this.coolDownCounter = this.coolDown
       this.shoots++
-      updateStats()
     }
   }
   moveRandom() {
@@ -192,7 +194,13 @@ class Enemy extends Entity {
 }
 
 const player = new Player('player')
-player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
+//control level and stuff
+
+player.spawn(
+  panelXpositon + panelWidth / 2,
+  panelYpositon + panelHight - 75,
+  playerImg
+)
 
 let enemyList = []
 for (let i = 0; i < 10; i++) {
@@ -200,7 +208,11 @@ for (let i = 0; i < 10; i++) {
   enemyImg.setAttribute('src', 'images/enemy.png')
   const enemy = new Enemy('enemy')
   enemyList.push(enemy)
-  enemyList[i].spawn(panelXpositon + 20 + i, panelYpositon, enemyImg)
+  enemyList[i].spawn(
+    panelXpositon + panelWidth / 2 - Math.random() * 10 * i,
+    panelYpositon + Math.random() * 10,
+    enemyImg
+  )
 }
 
 //run frames
@@ -208,6 +220,8 @@ for (let i = 0; i < 10; i++) {
 const managePlayer = () => {
   if (!player.alive) {
     player.render.remove()
+    gameOver = true
+    displayPanelH1.innerText = 'You lost'
     return
   }
   if (inputLeft) {
@@ -217,11 +231,11 @@ const managePlayer = () => {
   }
   player.checkCollsion()
 
+  //cooldown counter
   player.coolDownCounter =
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
-}
 
-const updateStats = () => {
+  //update stats
   scoresDisplay.innerText = 'scores: ' + player.scores
   killsDisplay.innerText = 'kills: ' + player.kills
   accuracyDisplay.innerText =
@@ -260,6 +274,9 @@ const manageEnemies = () => {
 
 const makeFrame = () => {
   //what things run every frame
+  if (gameOver) {
+    return
+  }
   managePlayer()
 
   manageProjectiles()
@@ -272,6 +289,7 @@ const runFrames = setInterval(() => {
 }, 25)
 
 //event listners and input
+
 document.body.addEventListener('keydown', (e) => {
   if (e.code == 'KeyD') {
     inputRight = true
@@ -279,6 +297,7 @@ document.body.addEventListener('keydown', (e) => {
     inputLeft = true
   }
 })
+
 document.body.addEventListener('keyup', (e) => {
   if (e.code == 'KeyD') {
     inputRight = false
@@ -290,6 +309,10 @@ document.body.addEventListener('keyup', (e) => {
 document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space' && player.alive) {
     player.shoot()
+  }
+  if (gameOver && player.alive) {
+    gameOver = false
+    displayPanelH1.innerText = ''
   }
 })
 
