@@ -18,6 +18,8 @@ body{
   outline: solid white;
   width: 100%;
   text-align: center;
+  background-color: black;
+  position: relative;
 }
 
 
@@ -30,7 +32,8 @@ footer {
   outline: solid white;
   width: 100%;
   height: 30px;
-
+  position: relative;
+  background-color: black;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
