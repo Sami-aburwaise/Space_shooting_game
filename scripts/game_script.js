@@ -89,8 +89,11 @@ class Projectile extends Entity {
     super(type)
     this.speed = 30
   }
+  moveUp = () => {
+    this.render.style.top = this.yPosition() - this.speed + 'px'
+  }
   checkCollision = () => {
-    if (this.yPosition() < panelYpositon + 10) {
+    if (this.yPosition() <= 0) {
       this.alive = false
     }
   }
