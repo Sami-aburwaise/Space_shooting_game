@@ -1,8 +1,6 @@
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
 
-const enemyImg = document.createElement('img')
-enemyImg.setAttribute('src', 'images/enemy.png')
 const scoresDisplay = document.querySelector('#scoresDisplay')
 const killsDisplay = document.querySelector('#killsDisplay')
 const accuracyDisplay = document.querySelector('#accuracyDisplay')
@@ -149,7 +147,7 @@ class Enemy extends Entity {
         ) <= 15
       ) {
         projectile.alive = false
-        this.render.remove()
+        this.alive = false
       }
     })
   }
@@ -159,7 +157,8 @@ const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
 let enemyList = []
 for (let i = 0; i < 20; i++) {
-  console.log(i)
+  const enemyImg = document.createElement('img')
+  enemyImg.setAttribute('src', 'images/enemy.png')
   const enemy = new Enemy('enemy')
   enemyList.push(enemy)
   enemyList[i].spawn(panelXpositon + 20 + i, panelYpositon, enemyImg)
@@ -196,9 +195,13 @@ manageProjectiles = () => {
 }
 
 manageEnemies = () => {
-  enemyList.forEach((enemy) => {
+  enemyList.forEach((enemy, index) => {
     enemy.moveRandom()
     enemy.checkCollsion()
+    if (!enemy.alive) {
+      enemy.render.remove()
+      enemyList.splice(index, 1)
+    }
   })
 }
 

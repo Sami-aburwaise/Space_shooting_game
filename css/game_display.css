@@ -9,9 +9,6 @@
   position: absolute;
   margin: 0;
   padding: 0;
-  outline: solid red;
-  outline-width: 1px;
-
 }
 
 .projectile {

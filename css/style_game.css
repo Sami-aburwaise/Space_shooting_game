@@ -22,7 +22,6 @@ body{
 
 
 #gamePanel {
-  outline: solid white 5px;
   width: 720px;
   height: 480px;
 }
