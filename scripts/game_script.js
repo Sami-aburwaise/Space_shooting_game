@@ -85,6 +85,25 @@ class Player extends Entity {
       updateStats()
     }
   }
+  checkCollsion() {
+    projectileList.forEach((projectile) => {
+      if (projectile.friendly) {
+        return
+      }
+      if (
+        Math.abs(
+          projectile.xPosition() - this.xPosition() - this.render.width / 2
+        ) <= 15 &&
+        Math.abs(
+          projectile.yPosition() - this.yPosition() - this.render.height
+        ) <= 15
+      ) {
+        projectile.alive = false
+        this.alive = false
+        console.log('player got hit')
+      }
+    })
+  }
 }
 
 class Projectile extends Entity {
@@ -115,7 +134,7 @@ class Enemy extends Entity {
   constructor(type) {
     super(type)
     this.speed = 10
-    this.coolDown = 50
+    this.coolDown = Math.floor(Math.random() * 50)
     this.coolDownCounter = 0
   }
 
@@ -127,7 +146,7 @@ class Enemy extends Entity {
       projectileImg.setAttribute('src', 'images/enemyProjectile.png')
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
       projectileList.push(projectile)
-      this.coolDownCounter = 0 //this.coolDown
+      this.coolDownCounter = this.coolDown
       this.shoots++
       updateStats()
     }
@@ -176,7 +195,7 @@ const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
 
 let enemyList = []
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 1; i++) {
   const enemyImg = document.createElement('img')
   enemyImg.setAttribute('src', 'images/enemy.png')
   const enemy = new Enemy('enemy')
@@ -186,25 +205,29 @@ for (let i = 0; i < 20; i++) {
 
 //run frames
 
-const manageInput = () => {
+const managePlayer = () => {
   if (inputLeft) {
     player.moveLeft()
   } else if (inputRight) {
     player.moveRight()
   }
+  player.checkCollsion()
 
   player.coolDownCounter =
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
+  if (!player.alive) {
+    player.render.remove()
+  }
 }
 
-updateStats = () => {
+const updateStats = () => {
   scoresDisplay.innerText = 'scores: ' + player.scores
   killsDisplay.innerText = 'kills: ' + player.kills
   accuracyDisplay.innerText =
     'accuracy: ' + parseInt((100 * player.kills) / player.shoots) + '%'
 }
 
-manageProjectiles = () => {
+const manageProjectiles = () => {
   if (projectileList.length != 0) {
     projectileList.forEach((projectile, index) => {
       if (projectile.friendly) {
@@ -221,20 +244,22 @@ manageProjectiles = () => {
   }
 }
 
-manageEnemies = () => {
+const manageEnemies = () => {
   enemyList.forEach((enemy, index) => {
-    enemy.moveRandom()
-    enemy.checkCollsion()
     if (!enemy.alive) {
       enemy.render.remove()
       enemyList.splice(index, 1)
     }
+    enemy.moveRandom()
+    enemy.checkCollsion()
+    enemy.coolDownCounter =
+      enemy.coolDownCounter > 0 ? (enemy.coolDownCounter -= 1) : 0
   })
 }
 
 const makeFrame = () => {
   //what things run every frame
-  manageInput()
+  managePlayer()
 
   manageProjectiles()
 
