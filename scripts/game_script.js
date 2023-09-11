@@ -12,6 +12,7 @@ let panelWidth = 720
 let panelHight = 480
 let inputRight = false
 let inputLeft = false
+
 const gamePanel = document.querySelector('#gamePanel')
 let panelXpositon = gamePanel.getBoundingClientRect('position').left
 let panelYpositon = gamePanel.getBoundingClientRect('position').top
@@ -34,18 +35,6 @@ class Entity {
   yPosition() {
     return this.render.getBoundingClientRect('position').top
   }
-}
-
-class Player extends Entity {
-  constructor(type) {
-    super(type)
-    this.speed = 5
-    this.coolDown = 15
-    this.coolDownCounter = 0
-    this.shoots = 0
-    this.kills = 0
-    this.scores = 0
-  }
   moveRight = () => {
     if (this.xPosition() > panelWidth + panelXpositon - this.render.width) {
       return
@@ -58,6 +47,31 @@ class Player extends Entity {
     }
     this.render.style.left = this.xPosition() - this.speed + 'px'
   }
+  moveUp = () => {
+    if (this.yPosition() < panelYpositon) {
+      return
+    }
+    this.render.style.top = this.yPosition() - this.speed + 'px'
+  }
+  moveDown = () => {
+    if (this.yPosition() > panelYpositon + panelHight) {
+      return
+    }
+    this.render.style.top = this.yPosition() + this.speed + 'px'
+  }
+}
+
+class Player extends Entity {
+  constructor(type) {
+    super(type)
+    this.speed = 5
+    this.coolDown = 15
+    this.coolDownCounter = 0
+    this.shoots = 0
+    this.kills = 0
+    this.scores = 0
+  }
+
   shoot = () => {
     if (this.coolDownCounter == 0) {
       const projectile = new Projectile('projectile')
@@ -77,19 +91,11 @@ class Projectile extends Entity {
     super(type)
     this.speed = 30
   }
-  moveUp = () => {
-    if (this.yPosition() < panelYpositon + 10) {
+  checkCollision = () => {
+    if (this.yPosition() < panelYpositon + 10 || !this.alive) {
       projectiles.shift()
       this.render.remove()
-      return
     }
-    this.render.style.top = this.yPosition() - this.speed + 'px'
-  }
-  moveDown = () => {
-    if (this.yPosition() > panelHight - this.render.offsetHeight) {
-      return
-    }
-    this.render.style.top = this.yPosition() + this.speed + 'px'
   }
 }
 
@@ -100,31 +106,7 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = 0
   }
-  moveRight = () => {
-    if (this.xPosition() > panelWidth + panelXpositon - this.render.width) {
-      return
-    }
-    this.render.style.left = this.xPosition() + this.speed + 'px'
-  }
-  moveLeft = () => {
-    if (this.xPosition() < panelXpositon) {
-      return
-    }
-    this.render.style.left = this.xPosition() - this.speed + 'px'
-  }
-  moveUp = () => {
-    console.log(this.yPosition())
-    if (this.yPosition() < panelYpositon) {
-      return
-    }
-    this.render.style.top = this.yPosition() - this.speed + 'px'
-  }
-  moveDown = () => {
-    if (this.yPosition() > panelYpositon) {
-      return
-    }
-    this.render.style.top = this.yPosition() + this.speed + 'px'
-  }
+
   shoot = () => {
     if (this.coolDownCounter == 0) {
       const projectile = new Projectile('projectile')
@@ -137,13 +119,50 @@ class Enemy extends Entity {
       updateStats()
     }
   }
+  moveRandom() {
+    let r = Math.floor(Math.random() * 4)
+    switch (r) {
+      case 0:
+        this.moveDown()
+        break
+      case 1:
+        this.moveUp()
+        break
+      case 2:
+        this.moveLeft()
+        break
+      case 3:
+        this.moveRight()
+        break
+
+      default:
+        break
+    }
+  }
+  checkCollsion() {
+    projectiles.forEach((projectile) => {
+      if (
+        Math.abs(
+          projectile.xPosition() - this.xPosition() - this.render.width / 2
+        ) <= 15 &&
+        Math.abs(
+          projectile.yPosition() - this.yPosition() - this.render.height
+        ) <= 15
+      ) {
+        projectile.alive = false
+        this.render.remove()
+      }
+    })
+  }
 }
 
 const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
-
-const enemy = new Enemy('enemy')
-enemy.spawn(panelXpositon + 20, panelYpositon, enemyImg)
+let enemyList = []
+for (let i = 0; i < 20; i++) {
+  enemyList.push(new Enemy('enemy'))
+  enemyList[i].spawn(panelXpositon + 20 + i, panelYpositon, enemyImg)
+}
 
 const manageInput = () => {
   if (inputLeft) {
@@ -151,6 +170,7 @@ const manageInput = () => {
   } else if (inputRight) {
     player.moveRight()
   }
+
   player.coolDownCounter =
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
 }
@@ -165,15 +185,23 @@ manageProjectiles = () => {
   if (projectiles.length != 0) {
     projectiles.forEach((projectile) => {
       projectile.moveUp()
+      projectile.checkCollision()
     })
   }
+}
+
+manageEnemies = () => {
+  enemyList.forEach((enemy) => {
+    enemy.moveRandom()
+    enemy.checkCollsion()
+  })
 }
 
 const makeFrame = () => {
   //what things run every frame
   manageInput()
   manageProjectiles()
-  enemy.moveRight()
+  manageEnemies()
 }
 
 const runFrames = setInterval(() => {
@@ -186,22 +214,12 @@ document.body.addEventListener('keydown', (e) => {
   } else if (e.code == 'KeyA') {
     inputLeft = true
   }
-  if (e.code == 'KeyW') {
-    inputUP = true
-  } else if (e.code == 'KeyS') {
-    inputDown = true
-  }
 })
 document.body.addEventListener('keyup', (e) => {
   if (e.code == 'KeyD') {
     inputRight = false
   } else if (e.code == 'KeyA') {
     inputLeft = false
-  }
-  if (e.code == 'KeyW') {
-    inputUP = false
-  } else if (e.code == 'KeyS') {
-    inputDown = false
   }
 })
 
