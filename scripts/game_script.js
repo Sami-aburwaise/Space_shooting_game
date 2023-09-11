@@ -4,7 +4,8 @@ playerImg.setAttribute('src', 'images/spaceShip.png')
 const scoresDisplay = document.querySelector('#scoresDisplay')
 const killsDisplay = document.querySelector('#killsDisplay')
 const accuracyDisplay = document.querySelector('#accuracyDisplay')
-projectiles = []
+let projectileList = []
+
 //game panel dimentions
 let panelWidth = 720
 let panelHight = 480
@@ -14,6 +15,8 @@ let inputLeft = false
 const gamePanel = document.querySelector('#gamePanel')
 let panelXpositon = gamePanel.getBoundingClientRect('position').left
 let panelYpositon = gamePanel.getBoundingClientRect('position').top
+
+//classes
 
 class Entity {
   constructor(type) {
@@ -76,7 +79,7 @@ class Player extends Entity {
       const projectileImg = document.createElement('img')
       projectileImg.setAttribute('src', 'images/projectile.png')
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
-      projectiles.push(projectile)
+      projectileList.push(projectile)
       this.coolDownCounter = 0 //this.coolDown
       this.shoots += 1
       updateStats()
@@ -88,12 +91,21 @@ class Projectile extends Entity {
   constructor(type) {
     super(type)
     this.speed = 30
+    this.friendly = true
   }
   moveUp = () => {
     this.render.style.top = this.yPosition() - this.speed + 'px'
   }
+  moveDown = () => {
+    this.render.style.top = this.yPosition() + this.speed + 'px'
+  }
   checkCollision = () => {
-    if (this.yPosition() <= 0) {
+    if (
+      this.yPosition() <= document.querySelector('#title').offsetHeight ||
+      this.yPosition() >=
+        document.body.offsetHeight -
+          document.querySelector('footer').offsetHeight
+    ) {
       this.alive = false
     }
   }
@@ -110,10 +122,11 @@ class Enemy extends Entity {
   shoot = () => {
     if (this.coolDownCounter == 0) {
       const projectile = new Projectile('projectile')
+      projectile.friendly = false
       const projectileImg = document.createElement('img')
-      projectileImg.setAttribute('src', 'images/projectile.png')
+      projectileImg.setAttribute('src', 'images/enemyProjectile.png')
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
-      projectiles.push(projectile)
+      projectileList.push(projectile)
       this.coolDownCounter = 0 //this.coolDown
       this.shoots++
       updateStats()
@@ -124,6 +137,7 @@ class Enemy extends Entity {
     switch (r) {
       case 0:
         this.moveDown()
+        this.shoot()
         break
       case 1:
         this.moveUp()
@@ -140,14 +154,15 @@ class Enemy extends Entity {
     }
   }
   checkCollsion() {
-    projectiles.forEach((projectile) => {
+    projectileList.forEach((projectile) => {
       if (
         Math.abs(
           projectile.xPosition() - this.xPosition() - this.render.width / 2
         ) <= 15 &&
         Math.abs(
           projectile.yPosition() - this.yPosition() - this.render.height
-        ) <= 15
+        ) <= 15 &&
+        projectile.friendly
       ) {
         projectile.alive = false
         this.alive = false
@@ -169,6 +184,8 @@ for (let i = 0; i < 20; i++) {
   enemyList[i].spawn(panelXpositon + 20 + i, panelYpositon, enemyImg)
 }
 
+//run frames
+
 const manageInput = () => {
   if (inputLeft) {
     player.moveLeft()
@@ -188,13 +205,17 @@ updateStats = () => {
 }
 
 manageProjectiles = () => {
-  if (projectiles.length != 0) {
-    projectiles.forEach((projectile, index) => {
-      projectile.moveUp()
+  if (projectileList.length != 0) {
+    projectileList.forEach((projectile, index) => {
+      if (projectile.friendly) {
+        projectile.moveUp()
+      } else {
+        projectile.moveDown()
+      }
       projectile.checkCollision()
       if (!projectile.alive) {
         projectile.render.remove()
-        projectiles.splice(index, 1)
+        projectileList.splice(index, 1)
       }
     })
   }
@@ -224,6 +245,7 @@ const runFrames = setInterval(() => {
   makeFrame()
 }, 25)
 
+//event listners and input
 document.body.addEventListener('keydown', (e) => {
   if (e.code == 'KeyD') {
     inputRight = true
@@ -249,6 +271,7 @@ document.querySelector('button').addEventListener('click', () => {
   window.location.href = 'index.html'
 })
 
+//make stars
 for (let i = 0; i < 100; i++) {
   const star = document.createElement('img')
   star.setAttribute('src', 'images/star.png')
