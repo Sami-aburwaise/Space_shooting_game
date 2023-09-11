@@ -1,7 +1,8 @@
-const displayPanelH1 = document.querySelector('#displayPanelH1')
+const h1Dsiplay = document.querySelector('#displayPanelH1')
+const h2Dsiplay = document.querySelector('#displayPanelH2')
 
 let gameOver = true
-let level = 1
+let levelFinneshed = false
 
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
@@ -10,6 +11,7 @@ const scoresDisplay = document.querySelector('#scoresDisplay')
 const killsDisplay = document.querySelector('#killsDisplay')
 const accuracyDisplay = document.querySelector('#accuracyDisplay')
 let projectileList = []
+let enemyList = []
 
 //game panel dimentions
 let panelWidth = 720
@@ -71,11 +73,11 @@ class Player extends Entity {
   constructor(type) {
     super(type)
     this.speed = 5
-    this.coolDown = 15
+    this.coolDown = 5
     this.coolDownCounter = 0
     this.shoots = 0
     this.kills = 0
-    this.scores = 0
+    this.level = 1
   }
 
   shoot = () => {
@@ -85,7 +87,7 @@ class Player extends Entity {
       projectileImg.setAttribute('src', 'images/projectile.png')
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
       projectileList.push(projectile)
-      this.coolDownCounter = 0 //this.coolDown
+      this.coolDownCounter = this.coolDown
       this.shoots += 1
     }
   }
@@ -112,7 +114,7 @@ class Player extends Entity {
 class Projectile extends Entity {
   constructor(type) {
     super(type)
-    this.speed = 30
+    this.speed = 10
     this.friendly = true
   }
   moveUp = () => {
@@ -139,6 +141,7 @@ class Enemy extends Entity {
     this.speed = 10
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
+    this.health = 0
   }
 
   shoot = () => {
@@ -176,18 +179,37 @@ class Enemy extends Entity {
   }
   checkCollsion() {
     projectileList.forEach((projectile) => {
+      if (!projectile.friendly) {
+        return
+      }
       if (
-        Math.abs(
-          projectile.xPosition() - this.xPosition() - this.render.width / 2
-        ) <= 15 &&
-        Math.abs(
-          projectile.yPosition() - this.yPosition() - this.render.height
-        ) <= 15 &&
-        projectile.friendly
+        !(
+          Math.abs(
+            projectile.xPosition() - this.xPosition() - this.render.width / 2
+          ) <= 15
+        )
       ) {
-        projectile.alive = false
-        this.alive = false
-        player.kills += 1
+        return
+      }
+      if (
+        !(
+          Math.abs(
+            projectile.yPosition() - this.yPosition() - this.render.height
+          ) <= 15
+        )
+      ) {
+        return
+      }
+      {
+        if (this.health <= 0) {
+          projectile.alive = false
+          this.alive = false
+          player.kills += 1
+        } else {
+          projectile.alive = false
+          this.health -= 1
+          this.render.width -= 5
+        }
       }
     })
   }
@@ -202,26 +224,11 @@ player.spawn(
   playerImg
 )
 
-let enemyList = []
-for (let i = 0; i < 10; i++) {
-  const enemyImg = document.createElement('img')
-  enemyImg.setAttribute('src', 'images/enemy.png')
-  const enemy = new Enemy('enemy')
-  enemyList.push(enemy)
-  enemyList[i].spawn(
-    panelXpositon + panelWidth / 2 - Math.random() * 10 * i,
-    panelYpositon + Math.random() * 10,
-    enemyImg
-  )
-}
-
 //run frames
 
 const managePlayer = () => {
   if (!player.alive) {
     player.render.remove()
-    gameOver = true
-    displayPanelH1.innerText = 'You lost'
     return
   }
   if (inputLeft) {
@@ -236,7 +243,7 @@ const managePlayer = () => {
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
 
   //update stats
-  scoresDisplay.innerText = 'scores: ' + player.scores
+  scoresDisplay.innerText = 'level ' + player.level
   killsDisplay.innerText = 'kills: ' + player.kills
   accuracyDisplay.innerText =
     'accuracy: ' + parseInt((100 * player.kills) / player.shoots) + '%'
@@ -272,7 +279,92 @@ const manageEnemies = () => {
   })
 }
 
+const spawnEnemies = (n) => {
+  for (let i = 0; i < n; i++) {
+    const enemyImg = document.createElement('img')
+    enemyImg.setAttribute('src', 'images/enemy.png')
+    const enemy = new Enemy('enemy')
+    enemyList.push(enemy)
+    enemyList[i].spawn(
+      panelXpositon + panelWidth / 2 - Math.random() * 10 * i,
+      panelYpositon + Math.random() * 10,
+      enemyImg
+    )
+  }
+}
+spawnEnemies(1)
+
+const manageGame = () => {
+  if (!player.alive) {
+    player.render.remove()
+    gameOver = true
+    player.level = 0
+    h1Dsiplay.innerText = 'You lost'
+    h2Dsiplay.innerText = 'press w to play again'
+  } else if (enemyList.length == 0 && !levelFinneshed) {
+    gameOver = true
+    levelFinneshed = true
+    player.level += 1
+    h1Dsiplay.innerText = 'You won'
+    h2Dsiplay.innerText = 'press any button to continue'
+    //remove projectiles so no one get hurt
+    projectileList.forEach((projectile) => {
+      projectile.render.remove()
+    })
+    projectileList = []
+  }
+
+  if (levelFinneshed && gameOver) {
+    levelFinneshed = false
+
+    switch (player.level) {
+      case 1:
+        spawnEnemies(player.level)
+        break
+      case 2:
+        spawnEnemies(player.level)
+        break
+      case 3:
+        spawnEnemies(player.level)
+        enemyList.forEach((enemy) => {
+          enemy.render.width += 50
+          enemy.coolDown = 5
+        })
+        break
+      case 4:
+        spawnEnemies(1)
+        enemyList.forEach((enemy) => {
+          enemy.render.width += 75
+          enemy.health = 7
+          enemy.coolDown = 1
+        })
+        break
+      case 5:
+        spawnEnemies(player.level)
+        enemyList.forEach((enemy) => {
+          enemy.health = 2
+        })
+        break
+      case 6:
+        spawnEnemies(player.level)
+        enemyList.forEach((enemy) => {
+          enemy.render.width /= 2
+          enemy.speed += 10
+        })
+
+        break
+      case 7:
+        spawnEnemies(15)
+        break
+
+      default:
+        break
+    }
+  }
+}
+
 const makeFrame = () => {
+  manageGame()
   //what things run every frame
   if (gameOver) {
     return
@@ -312,7 +404,11 @@ document.body.addEventListener('keypress', (e) => {
   }
   if (gameOver && player.alive) {
     gameOver = false
-    displayPanelH1.innerText = ''
+    h1Dsiplay.innerText = ''
+    h2Dsiplay.innerText = ''
+  }
+  if (e.code == 'KeyW' && !player.alive) {
+    location.reload()
   }
 })
 
