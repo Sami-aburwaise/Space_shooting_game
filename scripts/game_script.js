@@ -92,9 +92,8 @@ class Projectile extends Entity {
     this.speed = 30
   }
   checkCollision = () => {
-    if (this.yPosition() < panelYpositon + 10 || !this.alive) {
-      projectiles.shift()
-      this.render.remove()
+    if (this.yPosition() < panelYpositon + 10) {
+      this.alive = false
     }
   }
 }
@@ -160,7 +159,9 @@ const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
 let enemyList = []
 for (let i = 0; i < 20; i++) {
-  enemyList.push(new Enemy('enemy'))
+  console.log(i)
+  const enemy = new Enemy('enemy')
+  enemyList.push(enemy)
   enemyList[i].spawn(panelXpositon + 20 + i, panelYpositon, enemyImg)
 }
 
@@ -183,9 +184,13 @@ updateStats = () => {
 
 manageProjectiles = () => {
   if (projectiles.length != 0) {
-    projectiles.forEach((projectile) => {
+    projectiles.forEach((projectile, index) => {
       projectile.moveUp()
       projectile.checkCollision()
+      if (!projectile.alive) {
+        projectile.render.remove()
+        projectiles.splice(index, 1)
+      }
     })
   }
 }
@@ -200,7 +205,9 @@ manageEnemies = () => {
 const makeFrame = () => {
   //what things run every frame
   manageInput()
+
   manageProjectiles()
+
   manageEnemies()
 }
 
