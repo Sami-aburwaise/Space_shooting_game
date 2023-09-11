@@ -78,7 +78,7 @@ class Player extends Entity {
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
       projectiles.push(projectile)
       this.coolDownCounter = 0 //this.coolDown
-      this.shoots++
+      this.shoots += 1
       updateStats()
     }
   }
@@ -148,6 +148,7 @@ class Enemy extends Entity {
       ) {
         projectile.alive = false
         this.alive = false
+        player.kills += 1
       }
     })
   }
@@ -155,6 +156,7 @@ class Enemy extends Entity {
 
 const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
+
 let enemyList = []
 for (let i = 0; i < 20; i++) {
   const enemyImg = document.createElement('img')
@@ -178,7 +180,8 @@ const manageInput = () => {
 updateStats = () => {
   scoresDisplay.innerText = 'scores: ' + player.scores
   killsDisplay.innerText = 'kills: ' + player.kills
-  accuracyDisplay.innerText = 'accuracy: ' + player.kills / player.shoots + '%'
+  accuracyDisplay.innerText =
+    'accuracy: ' + parseInt((100 * player.kills) / player.shoots) + '%'
 }
 
 manageProjectiles = () => {
