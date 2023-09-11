@@ -134,8 +134,8 @@ class Enemy extends Entity {
   constructor(type) {
     super(type)
     this.speed = 10
-    this.coolDown = Math.floor(Math.random() * 50)
-    this.coolDownCounter = 0
+    this.coolDown = 50
+    this.coolDownCounter = Math.floor(Math.random() * 50)
   }
 
   shoot = () => {
@@ -195,7 +195,7 @@ const player = new Player('player')
 player.spawn(panelWidth / 2, panelYpositon + panelHight - 75, playerImg)
 
 let enemyList = []
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 10; i++) {
   const enemyImg = document.createElement('img')
   enemyImg.setAttribute('src', 'images/enemy.png')
   const enemy = new Enemy('enemy')
@@ -206,6 +206,10 @@ for (let i = 0; i < 1; i++) {
 //run frames
 
 const managePlayer = () => {
+  if (!player.alive) {
+    player.render.remove()
+    return
+  }
   if (inputLeft) {
     player.moveLeft()
   } else if (inputRight) {
@@ -215,9 +219,6 @@ const managePlayer = () => {
 
   player.coolDownCounter =
     player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
-  if (!player.alive) {
-    player.render.remove()
-  }
 }
 
 const updateStats = () => {
@@ -287,7 +288,7 @@ document.body.addEventListener('keyup', (e) => {
 })
 
 document.body.addEventListener('keypress', (e) => {
-  if (e.code == 'Space') {
+  if (e.code == 'Space' && player.alive) {
     player.shoot()
   }
 })

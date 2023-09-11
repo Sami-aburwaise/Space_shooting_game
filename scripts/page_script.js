@@ -1,7 +1,5 @@
 const playButton = document.querySelector('#button')
 
-const colorButtons = document.querySelectorAll('button')
-
 playButton.addEventListener('mouseover', () => {
   playButton.style.backgroundColor = 'rgb(45, 45, 45)'
 })
@@ -12,10 +10,6 @@ playButton.addEventListener('mouseout', () => {
 
 playButton.addEventListener('click', () => {
   window.location.href = 'game.html'
-})
-
-colorButtons.forEach((button) => {
-  button.style.backgroundColor = button.innerText
 })
 
 for (let i = 0; i < 100; i++) {
