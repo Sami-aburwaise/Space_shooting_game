@@ -186,7 +186,8 @@ class Enemy extends Entity {
         !(
           Math.abs(
             projectile.xPosition() - this.xPosition() - this.render.width / 2
-          ) <= 15
+          ) <=
+          this.render.width / 2
         )
       ) {
         return
@@ -194,7 +195,7 @@ class Enemy extends Entity {
       if (
         !(
           Math.abs(
-            projectile.yPosition() - this.yPosition() - this.render.height
+            projectile.yPosition() - this.yPosition() - this.render.height / 2
           ) <= 15
         )
       ) {
@@ -358,6 +359,8 @@ const manageGame = () => {
         break
 
       default:
+        h1Dsiplay.innerText = 'You Won'
+        h2Dsiplay.innerText = 'Game finishsed'
         break
     }
   }
