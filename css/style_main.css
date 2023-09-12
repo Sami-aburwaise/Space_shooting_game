@@ -4,12 +4,33 @@ html, body{
   margin: 0;
   background-color: black;
   display: flex;
-  flex-direction: column;
   justify-content: space-around;
   align-items: center;
 }
 
-h1{
+main{
+  height: 90%;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.ad{
+  color: white;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 20%;
+}
+
+h2{
+
+}
+
+#title{
   font-size: 100px;
   color: white;
 }
@@ -23,7 +44,17 @@ h1{
   border-radius: 10px;
   background-color: black;
   color: white;
-  position: relative;
+}
+
+#hireMeButton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+  outline: solid white;
+  border-radius: 10px;
+  background-color: black;
+  color: rgb(255, 255, 255);
 }
 
 #options {

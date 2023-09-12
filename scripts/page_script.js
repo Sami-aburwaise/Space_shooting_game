@@ -1,4 +1,5 @@
 const playButton = document.querySelector('#button')
+const hireMe = document.querySelector('#hireMeButton')
 
 playButton.addEventListener('mouseover', () => {
   playButton.style.backgroundColor = 'rgb(45, 45, 45)'
@@ -9,6 +10,18 @@ playButton.addEventListener('mouseout', () => {
 })
 
 playButton.addEventListener('click', () => {
+  window.location.href = 'game.html'
+})
+
+hireMe.addEventListener('mouseover', () => {
+  hireMe.style.backgroundColor = 'rgb(45, 45, 45)'
+})
+
+hireMe.addEventListener('mouseout', () => {
+  hireMe.style.backgroundColor = 'black'
+})
+
+hireMe.addEventListener('click', () => {
   window.location.href = 'game.html'
 })
 
