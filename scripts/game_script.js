@@ -214,7 +214,7 @@ class Enemy extends Entity {
         break
       case 7:
         this.moveRight()
-        this.moveDown
+        this.moveUp()
         break
 
       default:
