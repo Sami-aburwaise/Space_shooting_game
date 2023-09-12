@@ -137,6 +137,16 @@ class Projectile extends Entity {
   }
 }
 
+const directionList = [
+  'left',
+  'right',
+  'up',
+  'down',
+  'leftUp',
+  'leftDown',
+  'rightUp',
+  'rightDown'
+]
 class Enemy extends Entity {
   constructor(type) {
     super(type)
@@ -144,7 +154,7 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
     this.health = 0
-    this.direction = Math.floor(Math.random() * 8)
+    this.direction = directionList[Math.floor(Math.random() * 8)]
     this.movingInterval = 3
     this.movingIntervalCounter = 0
   }
@@ -166,33 +176,47 @@ class Enemy extends Entity {
     }
   }
 
+  attackPlayer() {
+    if (this.xPosition() - player.xPosition() > 0) {
+      //player is left
+      this.direction = 'left'
+    } else {
+      //player is right
+      this.direction = 'right'
+    }
+    if (this.yPosition() - player.yPosition() > 0) {
+      //player above
+      this.direction = 'up'
+    }
+  }
+
   moveAround() {
     switch (this.direction) {
-      case 0:
+      case 'down':
         this.moveDown()
         break
-      case 1:
+      case 'up':
         this.moveUp()
         break
-      case 2:
+      case 'left':
         this.moveLeft()
         break
-      case 3:
+      case 'right':
         this.moveRight()
         break
-      case 4:
+      case 'leftDown':
         this.moveDown()
         this.moveLeft()
         break
-      case 5:
+      case 'leftUp':
         this.moveUp()
         this.moveLeft()
         break
-      case 6:
-        this.moveLeft()
+      case 'rightDown':
+        this.moveRight()
         this.moveDown()
         break
-      case 7:
+      case 'rightUp':
         this.moveRight()
         this.moveUp()
         break
@@ -203,8 +227,10 @@ class Enemy extends Entity {
     if (this.movingIntervalCounter != 0) {
       return
     }
+    this.attackPlayer()
+
     this.movingIntervalCounter = this.movingInterval
-    this.direction = Math.floor(Math.random() * 8)
+    this.direction = directionList[Math.floor(Math.random() * 8)]
   }
 
   checkCollsion() {
