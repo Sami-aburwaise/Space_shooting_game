@@ -9,31 +9,15 @@ html, body{
   align-items: center;
 }
 
-main{
-  height: 90%;
-  background-color: black;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-.ad{
-  color: white;
-  height: 40%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  width: 20%;
-}
-
-h2{
-
-}
-
 #title{
   font-size: 100px;
   color: white;
+}
+
+main{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #button {
@@ -47,6 +31,16 @@ h2{
   color: white;
 }
 
+
+.ad{
+  color: white;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 20%;
+}
 
 .star{
   position: fixed;

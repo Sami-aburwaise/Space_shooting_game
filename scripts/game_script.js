@@ -1,6 +1,5 @@
 const h1Dsiplay = document.querySelector('#displayPanelH1')
 const h2Dsiplay = document.querySelector('#displayPanelH2')
-
 let gameOver = true
 let levelFinneshed = false
 
@@ -154,7 +153,7 @@ class Enemy extends Entity {
       projectileImg.setAttribute('src', 'images/enemyProjectile.png')
       projectile.spawn(
         this.xPosition() + this.render.width / 2,
-        this.yPosition() * 1.5,
+        this.yPosition() + this.render.height,
         projectileImg
       )
       projectileList.push(projectile)
@@ -307,7 +306,7 @@ const spawnEnemies = (n) => {
 spawnEnemies(1)
 
 const manageGame = () => {
-  if (!player.alive) {
+  if (!player.alive && !gameOver) {
     player.render.remove()
     gameOver = true
     player.level = 0
@@ -371,7 +370,8 @@ const manageGame = () => {
 
       default:
         h1Dsiplay.innerText = 'You Won'
-        h2Dsiplay.innerText = 'Game finishsed'
+        h2Dsiplay.innerText = 'Game finishsed, press enter to play again'
+        gameOver = true
         break
     }
   }
@@ -420,7 +420,6 @@ const resetGame = () => {
     panelYpositon + panelHight - 75,
     playerImg
   )
-
   h1Dsiplay.innerText = 'LEVEL 1'
   h2Dsiplay.innerText = 'Press any button to start'
 }
@@ -462,7 +461,7 @@ document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space' && player.alive) {
     player.shoot()
   }
-  if (e.code == 'Enter' && !player.alive) {
+  if (e.code == 'Enter' && !gameOver) {
     resetGame()
   }
 })
