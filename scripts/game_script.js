@@ -144,6 +144,9 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
     this.health = 0
+    this.direction = Math.floor(Math.random() * 8)
+    this.movingInterval = 3
+    this.movingIntervalCounter = 0
   }
 
   shoot = () => {
@@ -159,10 +162,9 @@ class Enemy extends Entity {
       )
       projectileList.push(projectile)
       this.coolDownCounter = this.coolDown
-      this.shoots++
     }
   }
-  moveRandom() {
+  /*   moveRandom() {
     let r = Math.floor(Math.random() * 4)
     switch (r) {
       case 0:
@@ -182,7 +184,49 @@ class Enemy extends Entity {
       default:
         break
     }
+  } */
+
+  moveAround() {
+    switch (this.direction) {
+      case 0:
+        this.moveDown()
+        break
+      case 1:
+        this.moveUp()
+        break
+      case 2:
+        this.moveLeft()
+        break
+      case 3:
+        this.moveRight()
+        break
+      case 4:
+        this.moveDown()
+        this.moveLeft()
+        break
+      case 5:
+        this.moveUp()
+        this.moveLeft()
+        break
+      case 6:
+        this.moveLeft()
+        this.moveDown()
+        break
+      case 7:
+        this.moveRight()
+        this.moveDown
+        break
+
+      default:
+        break
+    }
+    if (this.movingIntervalCounter != 0) {
+      return
+    }
+    this.movingIntervalCounter = this.movingInterval
+    this.direction = Math.floor(Math.random() * 8)
   }
+
   checkCollsion() {
     projectileList.forEach((projectile) => {
       if (!projectile.friendly) {
@@ -284,10 +328,14 @@ const manageEnemies = () => {
       enemy.render.remove()
       enemyList.splice(index, 1)
     }
-    enemy.moveRandom()
+    //enemy.moveRandom()
+    enemy.moveAround()
     enemy.checkCollsion()
     enemy.coolDownCounter =
       enemy.coolDownCounter > 0 ? (enemy.coolDownCounter -= 1) : 0
+
+    enemy.movingIntervalCounter =
+      enemy.movingIntervalCounter > 0 ? (enemy.movingIntervalCounter -= 1) : 0
   })
 }
 
