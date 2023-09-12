@@ -428,27 +428,32 @@ const resetGame = () => {
 //event listners and input
 
 document.body.addEventListener('keydown', (e) => {
-  if (e.code == 'KeyD') {
+  if (e.code == 'KeyD' || e.code == 'ArrowRight') {
     inputRight = true
-  } else if (e.code == 'KeyA') {
+  } else if (e.code == 'KeyA' || e.code == 'ArrowLeft') {
     inputLeft = true
   }
-  if (e.code == 'KeyW') {
+  if (e.code == 'KeyW' || e.code == 'ArrowUp') {
     inputUp = true
-  } else if (e.code == 'KeyS') {
+  } else if (e.code == 'KeyS' || e.code == 'ArrowDown') {
     inputDown = true
+  }
+  if (gameOver && player.alive) {
+    gameOver = false
+    h1Dsiplay.innerText = ''
+    h2Dsiplay.innerText = ''
   }
 })
 
 document.body.addEventListener('keyup', (e) => {
-  if (e.code == 'KeyD') {
+  if (e.code == 'KeyD' || e.code == 'ArrowRight') {
     inputRight = false
-  } else if (e.code == 'KeyA') {
+  } else if (e.code == 'KeyA' || e.code == 'ArrowLeft') {
     inputLeft = false
   }
-  if (e.code == 'KeyW') {
+  if (e.code == 'KeyW' || e.code == 'ArrowUp') {
     inputUp = false
-  } else if (e.code == 'KeyS') {
+  } else if (e.code == 'KeyS' || e.code == 'ArrowDown') {
     inputDown = false
   }
 })
@@ -456,11 +461,6 @@ document.body.addEventListener('keyup', (e) => {
 document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space' && player.alive) {
     player.shoot()
-  }
-  if (gameOver && player.alive) {
-    gameOver = false
-    h1Dsiplay.innerText = ''
-    h2Dsiplay.innerText = ''
   }
   if (e.code == 'Enter' && !player.alive) {
     resetGame()
