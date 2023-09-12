@@ -1,5 +1,4 @@
 const playButton = document.querySelector('#button')
-const hireMe = document.querySelector('#hireMeButton')
 
 playButton.addEventListener('mouseover', () => {
   playButton.style.backgroundColor = 'rgb(45, 45, 45)'
@@ -13,6 +12,10 @@ playButton.addEventListener('click', () => {
   window.location.href = 'game.html'
 })
 
+/* 
+const hireMe = document.querySelector('#hireMeButton')
+
+
 hireMe.addEventListener('mouseover', () => {
   hireMe.style.backgroundColor = 'rgb(45, 45, 45)'
 })
@@ -24,7 +27,7 @@ hireMe.addEventListener('mouseout', () => {
 hireMe.addEventListener('click', () => {
   window.location.href = 'game.html'
 })
-
+ */
 for (let i = 0; i < 100; i++) {
   const star = document.createElement('img')
   star.setAttribute('src', 'images/star.png')

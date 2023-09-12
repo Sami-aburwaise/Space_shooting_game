@@ -4,6 +4,7 @@ html, body{
   margin: 0;
   background-color: black;
   display: flex;
+  flex-direction: column;
   justify-content: space-around;
   align-items: center;
 }
@@ -46,28 +47,48 @@ h2{
   color: white;
 }
 
-#hireMeButton{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40%;
-  outline: solid white;
-  border-radius: 10px;
-  background-color: black;
-  color: rgb(255, 255, 255);
-}
-
-#options {
-  width: 50%;
-  color: white;
-  outline: solid white;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
 
 .star{
   position: fixed;
+}
+
+#controlsSign { 
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  color: white;
+}
+
+.keyPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.key{
+  color: white;
+  outline: solid ;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+}
+.lowerKeys {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#spaceBar {
+  color: white;
+  outline: solid ;
+  width: 250px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
