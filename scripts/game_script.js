@@ -161,30 +161,10 @@ class Enemy extends Entity {
         projectileImg
       )
       projectileList.push(projectile)
+      this.coolDown = 20 + Math.floor(Math.random() * 50)
       this.coolDownCounter = this.coolDown
     }
   }
-  /*   moveRandom() {
-    let r = Math.floor(Math.random() * 4)
-    switch (r) {
-      case 0:
-        this.moveDown()
-        this.shoot()
-        break
-      case 1:
-        this.moveUp()
-        break
-      case 2:
-        this.moveLeft()
-        break
-      case 3:
-        this.moveRight()
-        break
-
-      default:
-        break
-    }
-  } */
 
   moveAround() {
     switch (this.direction) {
@@ -328,7 +308,7 @@ const manageEnemies = () => {
       enemy.render.remove()
       enemyList.splice(index, 1)
     }
-    //enemy.moveRandom()
+    enemy.shoot()
     enemy.moveAround()
     enemy.checkCollsion()
     enemy.coolDownCounter =
