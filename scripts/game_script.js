@@ -216,7 +216,7 @@ class Enemy extends Entity {
   }
 }
 
-const player = new Player('player')
+let player = new Player('player')
 //control level and stuff
 
 player.spawn(
@@ -301,7 +301,7 @@ const manageGame = () => {
     gameOver = true
     player.level = 0
     h1Dsiplay.innerText = 'You lost'
-    h2Dsiplay.innerText = 'press w to play again'
+    h2Dsiplay.innerText = 'press enter to play again'
   } else if (enemyList.length == 0 && !levelFinneshed) {
     gameOver = true
     levelFinneshed = true
@@ -383,6 +383,37 @@ const runFrames = setInterval(() => {
   makeFrame()
 }, 25)
 
+const resetGame = () => {
+  gameOver = true
+  levelFinneshed = false
+  //remove all projectiles
+  if (projectileList.length != 0) {
+    projectileList.forEach((projectile, index) => {
+      projectile.render.remove()
+    })
+    projectileList = []
+  }
+  //remove all enemies
+  if (enemyList.length != 0) {
+    enemyList.forEach((enemy) => {
+      enemy.render.remove()
+    })
+    enemyList = []
+  }
+  spawnEnemies(1)
+
+  //reset player
+  player = new Player('player')
+  player.spawn(
+    panelXpositon + panelWidth / 2,
+    panelYpositon + panelHight - 75,
+    playerImg
+  )
+
+  h1Dsiplay.innerText = 'LEVEL 1'
+  h2Dsiplay.innerText = 'Press any button to start'
+}
+
 //event listners and input
 
 document.body.addEventListener('keydown', (e) => {
@@ -410,8 +441,8 @@ document.body.addEventListener('keypress', (e) => {
     h1Dsiplay.innerText = ''
     h2Dsiplay.innerText = ''
   }
-  if (e.code == 'KeyW' && !player.alive) {
-    location.reload()
+  if (e.code == 'Enter' && !player.alive) {
+    resetGame()
   }
 })
 
