@@ -18,6 +18,8 @@ let panelWidth = 720
 let panelHight = 480
 let inputRight = false
 let inputLeft = false
+let inputUp = false
+let inputDown = false
 
 const gamePanel = document.querySelector('#gamePanel')
 let panelXpositon = gamePanel.getBoundingClientRect('position').left
@@ -150,7 +152,11 @@ class Enemy extends Entity {
       projectile.friendly = false
       const projectileImg = document.createElement('img')
       projectileImg.setAttribute('src', 'images/enemyProjectile.png')
-      projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
+      projectile.spawn(
+        this.xPosition() + this.render.width / 2,
+        this.yPosition() * 1.5,
+        projectileImg
+      )
       projectileList.push(projectile)
       this.coolDownCounter = this.coolDown
       this.shoots++
@@ -236,6 +242,11 @@ const managePlayer = () => {
     player.moveLeft()
   } else if (inputRight) {
     player.moveRight()
+  }
+  if (inputUp) {
+    player.moveUp()
+  } else if (inputDown) {
+    player.moveDown()
   }
   player.checkCollsion()
 
@@ -422,6 +433,11 @@ document.body.addEventListener('keydown', (e) => {
   } else if (e.code == 'KeyA') {
     inputLeft = true
   }
+  if (e.code == 'KeyW') {
+    inputUp = true
+  } else if (e.code == 'KeyS') {
+    inputDown = true
+  }
 })
 
 document.body.addEventListener('keyup', (e) => {
@@ -429,6 +445,11 @@ document.body.addEventListener('keyup', (e) => {
     inputRight = false
   } else if (e.code == 'KeyA') {
     inputLeft = false
+  }
+  if (e.code == 'KeyW') {
+    inputUp = false
+  } else if (e.code == 'KeyS') {
+    inputDown = false
   }
 })
 
