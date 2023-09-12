@@ -12,22 +12,15 @@ playButton.addEventListener('click', () => {
   window.location.href = 'game.html'
 })
 
-/* 
-const hireMe = document.querySelector('#hireMeButton')
+const linkedinLogo = document.querySelector('#in-logo')
 
-
-hireMe.addEventListener('mouseover', () => {
-  hireMe.style.backgroundColor = 'rgb(45, 45, 45)'
+linkedinLogo.addEventListener('mouseover', () => {
+  linkedinLogo.classList.add('hovered')
+})
+linkedinLogo.addEventListener('mouseout', () => {
+  linkedinLogo.classList.remove('hovered')
 })
 
-hireMe.addEventListener('mouseout', () => {
-  hireMe.style.backgroundColor = 'black'
-})
-
-hireMe.addEventListener('click', () => {
-  window.location.href = 'game.html'
-})
- */
 for (let i = 0; i < 100; i++) {
   const star = document.createElement('img')
   star.setAttribute('src', 'images/star.png')

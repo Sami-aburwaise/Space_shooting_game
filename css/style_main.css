@@ -7,6 +7,10 @@ html, body{
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  
+  font-family: 'Dosis', sans-serif;
+  font-family: 'Lilita One', cursive;
+  font-family: 'Orbitron', sans-serif;
 }
 
 #title{
@@ -85,4 +89,10 @@ main{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.hovered{
+  opacity: 0.9;
+  outline: solid white;
+  border-radius: 5px;
 }

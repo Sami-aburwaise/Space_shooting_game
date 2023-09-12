@@ -3,6 +3,10 @@ html,body {
   padding: 0;
   height: 100%;
   min-width: 720px;
+  
+  font-family: 'Dosis', sans-serif;
+font-family: 'Lilita One', cursive;
+font-family: 'Orbitron', sans-serif;
 }
 
 body{
