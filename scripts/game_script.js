@@ -64,7 +64,7 @@ class Entity {
     this.render.style.top = this.yPosition() - this.speed + 'px'
   }
   moveDown = () => {
-    if (this.yPosition() > panelYpositon + panelHight) {
+    if (this.yPosition() > panelYpositon + panelHight - this.render.height) {
       return
     }
     this.render.style.top = this.yPosition() + this.speed + 'px'
@@ -144,8 +144,7 @@ const directionList = [
   'down',
   'leftUp',
   'leftDown',
-  'rightUp',
-  'rightDown'
+  'rightUp'
 ]
 class Enemy extends Entity {
   constructor(type) {
@@ -154,7 +153,7 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
     this.health = 0
-    this.direction = directionList[Math.floor(Math.random() * 8)]
+    this.direction = directionList[Math.floor(Math.random() * 7)]
     this.movingInterval = 3
     this.movingIntervalCounter = 0
   }
@@ -212,10 +211,6 @@ class Enemy extends Entity {
         this.moveUp()
         this.moveLeft()
         break
-      case 'rightDown':
-        this.moveRight()
-        this.moveDown()
-        break
       case 'rightUp':
         this.moveRight()
         this.moveUp()
@@ -230,7 +225,7 @@ class Enemy extends Entity {
     this.attackPlayer()
 
     this.movingIntervalCounter = this.movingInterval
-    this.direction = directionList[Math.floor(Math.random() * 8)]
+    this.direction = directionList[Math.floor(Math.random() * 7)]
   }
 
   checkCollsion() {
