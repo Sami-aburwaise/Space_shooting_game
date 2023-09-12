@@ -2,6 +2,7 @@ const h1Dsiplay = document.querySelector('#displayPanelH1')
 const h2Dsiplay = document.querySelector('#displayPanelH2')
 let gameOver = true
 let levelFinneshed = false
+let gameFinished = false
 
 const playerImg = document.createElement('img')
 playerImg.setAttribute('src', 'images/spaceShip.png')
@@ -214,7 +215,7 @@ class Enemy extends Entity {
         } else {
           projectile.alive = false
           this.health -= 1
-          this.render.width -= 5
+          this.render.width -= this.render.width / 4
         }
       }
     })
@@ -312,7 +313,7 @@ const manageGame = () => {
     player.level = 0
     h1Dsiplay.innerText = 'You lost'
     h2Dsiplay.innerText = 'press enter to play again'
-  } else if (enemyList.length == 0 && !levelFinneshed) {
+  } else if (enemyList.length == 0 && !levelFinneshed && !gameOver) {
     gameOver = true
     levelFinneshed = true
     player.level += 1
@@ -339,21 +340,21 @@ const manageGame = () => {
         spawnEnemies(player.level)
         enemyList.forEach((enemy) => {
           enemy.render.width += 50
-          enemy.coolDown = 5
+          enemy.coolDown = 20
         })
         break
       case 4:
-        spawnEnemies(1)
-        enemyList.forEach((enemy) => {
-          enemy.render.width += 75
-          enemy.health = 7
-          enemy.coolDown = 1
-        })
-        break
-      case 5:
         spawnEnemies(player.level)
         enemyList.forEach((enemy) => {
           enemy.health = 2
+        })
+        break
+      case 5:
+        spawnEnemies(1)
+        enemyList.forEach((enemy) => {
+          enemy.render.width += 150
+          enemy.health = 7
+          enemy.coolDown = 10
         })
         break
       case 6:
@@ -372,6 +373,7 @@ const manageGame = () => {
         h1Dsiplay.innerText = 'You Won'
         h2Dsiplay.innerText = 'Game finishsed, press enter to play again'
         gameOver = true
+        gameFinished = true
         break
     }
   }
@@ -397,6 +399,7 @@ const runFrames = setInterval(() => {
 const resetGame = () => {
   gameOver = true
   levelFinneshed = false
+  gameFinished = false
   //remove all projectiles
   if (projectileList.length != 0) {
     projectileList.forEach((projectile, index) => {
@@ -437,7 +440,7 @@ document.body.addEventListener('keydown', (e) => {
   } else if (e.code == 'KeyS' || e.code == 'ArrowDown') {
     inputDown = true
   }
-  if (gameOver && player.alive) {
+  if (gameOver && player.alive && !gameFinished) {
     gameOver = false
     h1Dsiplay.innerText = ''
     h2Dsiplay.innerText = ''
@@ -461,7 +464,7 @@ document.body.addEventListener('keypress', (e) => {
   if (e.code == 'Space' && player.alive) {
     player.shoot()
   }
-  if (e.code == 'Enter' && !gameOver) {
+  if (e.code == 'Enter' && gameOver) {
     resetGame()
   }
 })
