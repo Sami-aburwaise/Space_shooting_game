@@ -59,8 +59,6 @@ Moving the ship is just relocating or render the same image few pixels away ever
 
 ### game logic
 
-
-
 Since the same positioning and moving functions are needed for all the moving stuff in the game a class named **Entity** is created with these functionalities.
 
 The **Entity** class is extended to other classes to create objects with diffrent properties.
@@ -72,7 +70,11 @@ The **Entity** class is extended to other classes to create objects with diffren
 * projectile
 
 
-Every frame 
+#### Collision
+
+For detecting collisions the distance between the ship and all the projectiles in the game is calculated every frame.
+
+![element box diagram](/images/element-box-diagram.png)
 
 ### user input
 

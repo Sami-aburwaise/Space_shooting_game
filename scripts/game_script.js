@@ -83,6 +83,7 @@ class Player extends Entity {
     this.coolDownCounter = 0
     this.shoots = 0
     this.kills = 0
+    this.hits = 0
     this.level = 1
   }
 
@@ -212,6 +213,7 @@ class Enemy extends Entity {
           projectile.yPosition() - this.yPosition() - this.render.height / 2
         ) <= 15
       ) {
+        player.hits += 1
         if (this.health <= 0) {
           projectile.alive = false
           this.alive = false
@@ -300,7 +302,7 @@ const managePlayer = () => {
   scoresDisplay.innerText = 'level ' + player.level
   killsDisplay.innerText = 'kills: ' + player.kills
   accuracyDisplay.innerText =
-    'accuracy: ' + parseInt((100 * player.kills) / player.shoots) + '%'
+    'accuracy: ' + parseInt((100 * player.hits) / player.shoots) + '%'
 }
 
 const manageProjectiles = () => {
