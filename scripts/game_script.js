@@ -12,6 +12,7 @@ const killsDisplay = document.querySelector('#killsDisplay')
 const accuracyDisplay = document.querySelector('#accuracyDisplay')
 let projectileList = []
 let enemyList = []
+let explosionList = []
 
 //game panel dimentions
 let panelWidth = 720
@@ -137,15 +138,21 @@ class Projectile extends Entity {
   }
 }
 
-const directionList = [
-  'left',
-  'right',
-  'up',
-  'down',
-  'leftUp',
-  'leftDown',
-  'rightUp'
-]
+class Explosion extends Entity {
+  constructor(type) {
+    super(type)
+    this.lifeTime = 10
+  }
+  run() {
+    if (this.lifeTime == 0) {
+      this.render.remove()
+    } else {
+      this.lifeTime -= 1
+    }
+  }
+}
+
+const directionList = ['left', 'right', 'up', 'down', 'leftUp', 'rightUp']
 class Enemy extends Entity {
   constructor(type) {
     super(type)
@@ -153,8 +160,8 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
     this.health = 0
-    this.direction = directionList[Math.floor(Math.random() * 7)]
-    this.movingInterval = 3
+    this.direction = directionList[Math.floor(Math.random() * 6)]
+    this.movingInterval = 5
     this.movingIntervalCounter = 0
   }
 
@@ -178,10 +185,10 @@ class Enemy extends Entity {
   attackPlayer() {
     if (this.xPosition() - player.xPosition() > 0) {
       //player is left
-      this.direction = 'left'
+      this.direction = 'right'
     } else {
       //player is right
-      this.direction = 'right'
+      this.direction = 'left'
     }
     if (this.yPosition() - player.yPosition() > 0) {
       //player above
@@ -215,17 +222,15 @@ class Enemy extends Entity {
         this.moveRight()
         this.moveUp()
         break
-
       default:
         break
     }
+
     if (this.movingIntervalCounter != 0) {
       return
     }
-    this.attackPlayer()
-
     this.movingIntervalCounter = this.movingInterval
-    this.direction = directionList[Math.floor(Math.random() * 7)]
+    this.direction = directionList[Math.floor(Math.random() * 6)]
   }
 
   checkCollsion() {
@@ -257,6 +262,13 @@ class Enemy extends Entity {
           projectile.alive = false
           this.alive = false
           player.kills += 1
+          //spawn explostion
+          const explodeImg = document.createElement('img')
+          explodeImg.setAttribute('src', 'images/explode.gif')
+          const explosion = new Explosion('explostion')
+          explosionList.push(explosion)
+          explosion.spawn(this.xPosition(), this.yPosition(), explodeImg)
+          explosion.render.width = this.render.width
         } else {
           projectile.alive = false
           this.health -= 1
@@ -356,6 +368,11 @@ const spawnEnemies = (n) => {
 spawnEnemies(1)
 
 const manageGame = () => {
+  if (explosionList.length != 0) {
+    explosionList.forEach((e) => {
+      e.run()
+    })
+  }
   if (!player.alive && !gameOver) {
     player.render.remove()
     gameOver = true
@@ -463,6 +480,7 @@ const resetGame = () => {
     })
     enemyList = []
   }
+
   spawnEnemies(1)
 
   //reset player
