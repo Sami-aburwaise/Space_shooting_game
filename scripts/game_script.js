@@ -70,6 +70,26 @@ class Entity {
     }
     this.render.style.top = this.yPosition() + this.speed + 'px'
   }
+  move(x, y) {
+    //right left
+    if (
+      x > 0 &&
+      this.xPosition() < panelWidth + panelXpositon - this.render.width
+    ) {
+      this.render.style.left = this.xPosition() + x + 'px'
+    } else if (x < 0 && this.xPosition() > panelXpositon) {
+      this.render.style.left = this.xPosition() + x + 'px'
+    }
+    //
+    if (y < 0 && this.yPosition() > panelYpositon) {
+      this.render.style.top = this.yPosition() + y + 'px'
+    } else if (
+      y > 0 &&
+      this.yPosition() < panelYpositon + panelHight - this.render.height
+    ) {
+      this.render.style.top = this.yPosition() + y + 'px'
+    }
+  }
 }
 
 class Player extends Entity {
@@ -296,14 +316,14 @@ const managePlayer = () => {
     return
   }
   if (inputLeft) {
-    player.moveLeft()
+    player.move(-player.speed, 0)
   } else if (inputRight) {
-    player.moveRight()
+    player.move(player.speed)
   }
   if (inputUp) {
-    player.moveUp()
+    player.move(0, -player.speed)
   } else if (inputDown) {
-    player.moveDown()
+    player.move(0, player.speed)
   }
   player.checkCollsion()
 
