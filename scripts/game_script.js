@@ -236,7 +236,6 @@ class Enemy extends Entity {
 class Defender extends Enemy {
   constructor(type) {
     super(type)
-    //this.explodeImgDir =
     this.projectileType = 'images/defenderProjectile.png'
   }
   shoot = () => {
@@ -307,11 +306,6 @@ const managePlayer = () => {
 const manageProjectiles = () => {
   if (projectileList.length != 0) {
     projectileList.forEach((projectile, index) => {
-      /*       if (projectile.friendly) {
-        projectile.move(0, -projectile.speed, false)
-      } else {
-        projectile.move(0, projectile.speed, false)
-      } */
       projectile.move(
         projectile.xVelocity,
         projectile.yVelocity,
