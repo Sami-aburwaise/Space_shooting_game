@@ -183,20 +183,6 @@ class Enemy extends Entity {
     }
   }
 
-  attackPlayer() {
-    if (this.xPosition() - player.xPosition() > 0) {
-      //player is left
-      this.direction = 'right'
-    } else {
-      //player is right
-      this.direction = 'left'
-    }
-    if (this.yPosition() - player.yPosition() > 0) {
-      //player above
-      this.direction = 'up'
-    }
-  }
-
   moveAround() {
     this.move(this.xVelocity, this.yVelocity)
     if (this.movingIntervalCounter != 0) {
@@ -213,25 +199,14 @@ class Enemy extends Entity {
         return
       }
       if (
-        !(
-          Math.abs(
-            projectile.xPosition() - this.xPosition() - this.render.width / 2
-          ) <=
-          this.render.width / 2
-        )
+        Math.abs(
+          projectile.xPosition() - this.xPosition() - this.render.width / 2
+        ) <=
+          this.render.width / 2 &&
+        Math.abs(
+          projectile.yPosition() - this.yPosition() - this.render.height / 2
+        ) <= 15
       ) {
-        return
-      }
-      if (
-        !(
-          Math.abs(
-            projectile.yPosition() - this.yPosition() - this.render.height / 2
-          ) <= 15
-        )
-      ) {
-        return
-      }
-      {
         if (this.health <= 0) {
           projectile.alive = false
           this.alive = false
