@@ -32,6 +32,8 @@ class Entity {
   constructor(type) {
     this.type = type
     this.alive = true
+    this.xVelocity = 0
+    this.yVelocity = 0
   }
 
   spawn(x, y, render) {
@@ -49,7 +51,7 @@ class Entity {
     return this.render.getBoundingClientRect('position').top
   }
 
-  move(x, y, bordered = true) {
+  move(x = this.xVelocity, y = this.yVelocity, bordered = true) {
     //right left
     if (
       (x > 0 &&
@@ -90,6 +92,8 @@ class Player extends Entity {
       const projectileImg = document.createElement('img')
       projectileImg.setAttribute('src', 'images/projectile.png')
       projectile.spawn(this.xPosition(), this.yPosition(), projectileImg)
+      projectile.xVelocity = 0
+      projectile.yVelocity = -projectile.speed
       projectileList.push(projectile)
       this.coolDownCounter = this.coolDown
       this.shoots += 1
@@ -121,18 +125,15 @@ class Projectile extends Entity {
     this.speed = 10
     this.friendly = true
   }
-  moveUp = () => {
-    this.render.style.top = this.yPosition() - this.speed + 'px'
-  }
-  moveDown = () => {
-    this.render.style.top = this.yPosition() + this.speed + 'px'
-  }
+
   checkCollision = () => {
     if (
       this.yPosition() <= document.querySelector('#title').offsetHeight ||
       this.yPosition() >=
         document.body.offsetHeight -
-          document.querySelector('footer').offsetHeight
+          document.querySelector('footer').offsetHeight ||
+      this.xPosition() > document.body.style.width ||
+      this.xPosition() < 0
     ) {
       this.alive = false
     }
@@ -164,6 +165,8 @@ class Enemy extends Entity {
     this.yVelocity = this.speed * (Math.random() - Math.random())
     this.movingInterval = 5
     this.movingIntervalCounter = 0
+    this.projectileType = 'images/enemyProjectile.png'
+    this.explodeImgDir = 'images/explode.gif'
   }
 
   shoot = () => {
@@ -171,12 +174,14 @@ class Enemy extends Entity {
       const projectile = new Projectile('projectile')
       projectile.friendly = false
       const projectileImg = document.createElement('img')
-      projectileImg.setAttribute('src', 'images/enemyProjectile.png')
+      projectileImg.setAttribute('src', this.projectileType)
       projectile.spawn(
         this.xPosition() + this.render.width / 2,
         this.yPosition() + this.render.height,
         projectileImg
       )
+      projectile.xVelocity = 0
+      projectile.yVelocity = projectile.speed
       projectileList.push(projectile)
       this.coolDown = 20 + Math.floor(Math.random() * 50)
       this.coolDownCounter = this.coolDown
@@ -213,7 +218,7 @@ class Enemy extends Entity {
           player.kills += 1
           //spawn explostion
           const explodeImg = document.createElement('img')
-          explodeImg.setAttribute('src', 'images/explode.gif')
+          explodeImg.setAttribute('src', this.explodeImgDir)
           const explosion = new Explosion('explostion')
           explosionList.push(explosion)
           explosion.spawn(this.xPosition(), this.yPosition(), explodeImg)
@@ -225,6 +230,38 @@ class Enemy extends Entity {
         }
       }
     })
+  }
+}
+
+class Defender extends Enemy {
+  constructor(type) {
+    super(type)
+    //this.explodeImgDir =
+    this.projectileType = 'images/defenderProjectile.png'
+  }
+  shoot = () => {
+    if (this.coolDownCounter == 0) {
+      const projectile = new Projectile('projectile')
+      projectile.friendly = false
+      const projectileImg = document.createElement('img')
+      projectileImg.setAttribute('src', this.projectileType)
+      projectile.spawn(
+        this.xPosition() + this.render.width / 2,
+        this.yPosition() + this.render.height,
+        projectileImg
+      )
+      const xVector = -this.xPosition() + player.xPosition()
+      const yVector = -this.yPosition() + player.yPosition()
+      projectile.xVelocity =
+        (projectile.speed * xVector) /
+        Math.sqrt(xVector * xVector + yVector * yVector)
+      projectile.yVelocity =
+        (projectile.speed * yVector) /
+        Math.sqrt(xVector * xVector + yVector * yVector)
+      projectileList.push(projectile)
+      this.coolDown = 50 + Math.floor(Math.random() * 50)
+      this.coolDownCounter = this.coolDown
+    }
   }
 }
 
@@ -270,11 +307,16 @@ const managePlayer = () => {
 const manageProjectiles = () => {
   if (projectileList.length != 0) {
     projectileList.forEach((projectile, index) => {
-      if (projectile.friendly) {
+      /*       if (projectile.friendly) {
         projectile.move(0, -projectile.speed, false)
       } else {
         projectile.move(0, projectile.speed, false)
-      }
+      } */
+      projectile.move(
+        projectile.xVelocity,
+        projectile.yVelocity,
+        (bordered = false)
+      )
       projectile.checkCollision()
       if (!projectile.alive) {
         projectile.render.remove()
@@ -314,7 +356,21 @@ const spawnEnemies = (n) => {
     )
   }
 }
-spawnEnemies(1)
+
+const spawnDefenders = (n) => {
+  for (let i = 0; i < n; i++) {
+    const defenderImg = document.createElement('img')
+    defenderImg.setAttribute('src', 'images/defender.png')
+    const defender = new Defender('enemy')
+    enemyList.push(defender)
+    enemyList[i].spawn(
+      panelXpositon + panelWidth / 2 - Math.random() * 200 * i,
+      panelYpositon + Math.random() * 100,
+      defenderImg
+    )
+  }
+}
+spawnDefenders(1)
 
 const manageGame = () => {
   if (explosionList.length != 0) {
@@ -383,7 +439,9 @@ const manageGame = () => {
       case 7:
         spawnEnemies(15)
         break
-
+      case 8:
+        spawnDefenders(3)
+        break
       default:
         h1Dsiplay.innerText = 'You Won'
         h2Dsiplay.innerText = 'Game finishsed, press enter to play again'
