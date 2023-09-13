@@ -30,20 +30,53 @@ Read [project requirements](https://git.generalassemb.ly/SEI-06-Bahrain/SEI-Info
 
 * render
 
+* game logic
+
 * user input
 
-* game logic
+
+all these sections in the code are excuted every frame using [setInterval](https://www.w3schools.com/jsref/met_win_setinterval.asp) methode.
+```
+myInterval = setInterval(function, milliseconds);
+```
 
 
 ### render
 
-To render the game a png images are used and gif for animation.
-
-![space ship](/images/defender.png)
-
-![space ship explode](/images/explode.gif)
+To render the game a png or gif images is used.
 
 
+<img src='images/projectile.png' width = 20%>
+<img src='images/explode.gif' width = 50%>
+
+
+Every frame the game logic decide what position the image is going to be based on game logic and user input.
+
+#### moving stuff around
+
+Moving the ship is just relocating or render the same image few pixels away every frame.
+
+
+### game logic
+
+
+
+Since the same positioning and moving functions are needed for all the moving stuff in the game a class named **Entity** is created with these functionalities.
+
+The **Entity** class is extended to other classes to create objects with diffrent properties.
+
+* player
+
+* enemy
+
+* projectile
+
+
+Every frame 
+
+### user input
+
+Every frame the state of the input is checked then the corresponds action is excuted.
 
 ## wireframe
 
