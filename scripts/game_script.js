@@ -33,6 +33,7 @@ class Entity {
     this.type = type
     this.alive = true
   }
+
   spawn(x, y, render) {
     this.render = render
     this.render.classList.add(this.type)
@@ -40,52 +41,32 @@ class Entity {
     this.render.style.left = x + 'px'
     this.render.style.top = y + 'px'
   }
+
   xPosition() {
     return this.render.getBoundingClientRect('position').left
   }
   yPosition() {
     return this.render.getBoundingClientRect('position').top
   }
-  moveRight = () => {
-    if (this.xPosition() > panelWidth + panelXpositon - this.render.width) {
-      return
-    }
-    this.render.style.left = this.xPosition() + this.speed + 'px'
-  }
-  moveLeft = () => {
-    if (this.xPosition() < panelXpositon) {
-      return
-    }
-    this.render.style.left = this.xPosition() - this.speed + 'px'
-  }
-  moveUp = () => {
-    if (this.yPosition() < panelYpositon) {
-      return
-    }
-    this.render.style.top = this.yPosition() - this.speed + 'px'
-  }
-  moveDown = () => {
-    if (this.yPosition() > panelYpositon + panelHight - this.render.height) {
-      return
-    }
-    this.render.style.top = this.yPosition() + this.speed + 'px'
-  }
-  move(x, y) {
+
+  move(x, y, bordered = true) {
     //right left
     if (
-      x > 0 &&
-      this.xPosition() < panelWidth + panelXpositon - this.render.width
+      (x > 0 &&
+        this.xPosition() < panelWidth + panelXpositon - this.render.width) ||
+      !bordered
     ) {
       this.render.style.left = this.xPosition() + x + 'px'
-    } else if (x < 0 && this.xPosition() > panelXpositon) {
+    } else if ((x < 0 && this.xPosition() > panelXpositon) || !bordered) {
       this.render.style.left = this.xPosition() + x + 'px'
     }
-    //
-    if (y < 0 && this.yPosition() > panelYpositon) {
+    //up down
+    if ((y < 0 && this.yPosition() > panelYpositon) || !bordered) {
       this.render.style.top = this.yPosition() + y + 'px'
     } else if (
-      y > 0 &&
-      this.yPosition() < panelYpositon + panelHight - this.render.height
+      (y > 0 &&
+        this.yPosition() < panelYpositon + panelHight - this.render.height) ||
+      !bordered
     ) {
       this.render.style.top = this.yPosition() + y + 'px'
     }
@@ -172,7 +153,6 @@ class Explosion extends Entity {
   }
 }
 
-const directionList = ['left', 'right', 'up', 'down', 'leftUp', 'rightUp']
 class Enemy extends Entity {
   constructor(type) {
     super(type)
@@ -180,7 +160,8 @@ class Enemy extends Entity {
     this.coolDown = 50
     this.coolDownCounter = Math.floor(Math.random() * 50)
     this.health = 0
-    this.direction = directionList[Math.floor(Math.random() * 6)]
+    this.xVelocity = this.speed * (Math.random() - Math.random())
+    this.yVelocity = this.speed * (Math.random() - Math.random())
     this.movingInterval = 5
     this.movingIntervalCounter = 0
   }
@@ -217,40 +198,13 @@ class Enemy extends Entity {
   }
 
   moveAround() {
-    switch (this.direction) {
-      case 'down':
-        this.moveDown()
-        break
-      case 'up':
-        this.moveUp()
-        break
-      case 'left':
-        this.moveLeft()
-        break
-      case 'right':
-        this.moveRight()
-        break
-      case 'leftDown':
-        this.moveDown()
-        this.moveLeft()
-        break
-      case 'leftUp':
-        this.moveUp()
-        this.moveLeft()
-        break
-      case 'rightUp':
-        this.moveRight()
-        this.moveUp()
-        break
-      default:
-        break
-    }
-
+    this.move(this.xVelocity, this.yVelocity)
     if (this.movingIntervalCounter != 0) {
       return
     }
     this.movingIntervalCounter = this.movingInterval
-    this.direction = directionList[Math.floor(Math.random() * 6)]
+    this.xVelocity = this.speed * (Math.random() - Math.random())
+    this.yVelocity = this.speed * (Math.random() - Math.random())
   }
 
   checkCollsion() {
@@ -342,9 +296,9 @@ const manageProjectiles = () => {
   if (projectileList.length != 0) {
     projectileList.forEach((projectile, index) => {
       if (projectile.friendly) {
-        projectile.moveUp()
+        projectile.move(0, -projectile.speed, false)
       } else {
-        projectile.moveDown()
+        projectile.move(0, projectile.speed, false)
       }
       projectile.checkCollision()
       if (!projectile.alive) {
@@ -379,8 +333,8 @@ const spawnEnemies = (n) => {
     const enemy = new Enemy('enemy')
     enemyList.push(enemy)
     enemyList[i].spawn(
-      panelXpositon + panelWidth / 2 - Math.random() * 10 * i,
-      panelYpositon + Math.random() * 10,
+      panelXpositon + panelWidth / 2 - Math.random() * 200 * i,
+      panelYpositon + Math.random() * 100,
       enemyImg
     )
   }
