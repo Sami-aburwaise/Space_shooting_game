@@ -111,7 +111,8 @@ class Player extends Entity {
         ) <= 15 &&
         Math.abs(
           projectile.yPosition() - this.yPosition() - this.render.height
-        ) <= this.render.height
+        ) <=
+          this.render.height / 2
       ) {
         projectile.alive = false
         this.alive = false
