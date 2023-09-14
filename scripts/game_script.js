@@ -347,7 +347,7 @@ const spawnEnemies = (n) => {
     const enemy = new Enemy('enemy')
     enemyList.push(enemy)
     enemyList[i].spawn(
-      panelXpositon + panelWidth / 2 - Math.random() * 200 * i,
+      panelXpositon + panelWidth / 2 - Math.random() * 100 * i,
       panelYpositon + Math.random() * 100,
       enemyImg
     )
@@ -361,7 +361,7 @@ const spawnDefenders = (n) => {
     const defender = new Defender('enemy')
     enemyList.push(defender)
     enemyList[i].spawn(
-      panelXpositon + panelWidth / 2 - Math.random() * 200 * i,
+      panelXpositon + panelWidth / 2 - Math.random() * 100 * i,
       panelYpositon + Math.random() * 100,
       defenderImg
     )
