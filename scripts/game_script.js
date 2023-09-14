@@ -5,7 +5,7 @@ let levelFinneshed = false
 let gameFinished = false
 
 const playerImg = document.createElement('img')
-playerImg.setAttribute('src', 'images/spaceShip.png')
+playerImg.setAttribute('src', 'images/player.png')
 
 const scoresDisplay = document.querySelector('#scoresDisplay')
 const killsDisplay = document.querySelector('#killsDisplay')
@@ -239,6 +239,7 @@ class Defender extends Enemy {
   constructor(type) {
     super(type)
     this.projectileType = 'images/defenderProjectile.png'
+    this.explodeImgDir = ''
   }
   shoot = () => {
     if (this.coolDownCounter == 0) {
@@ -366,7 +367,24 @@ const spawnDefenders = (n) => {
     )
   }
 }
-spawnDefenders(1)
+
+const spawnMotherShip = () => {
+  const motherShipImg = document.createElement('img')
+  motherShipImg.setAttribute('src', 'images/motherShip.png')
+  const motherShip = new Defender('enemy')
+
+  motherShip.spawn(
+    panelXpositon + panelWidth / 2 - Math.random() * 200,
+    panelYpositon + Math.random() * 100,
+    motherShipImg
+  )
+  motherShip.render.width = 250
+  motherShip.health = 15
+  motherShip.speed += 10
+  enemyList.push(motherShip)
+}
+
+spawnEnemies(1)
 
 const manageGame = () => {
   if (explosionList.length != 0) {
@@ -433,10 +451,16 @@ const manageGame = () => {
 
         break
       case 7:
-        spawnEnemies(15)
+        spawnEnemies(10)
         break
       case 8:
         spawnDefenders(3)
+        break
+      case 9:
+        spawnDefenders(5)
+        break
+      case 10:
+        spawnMotherShip()
         break
       default:
         h1Dsiplay.innerText = 'You Won'
