@@ -56,12 +56,30 @@ Every frame the game logic decide what position the image is going to be based o
 
 Moving the ship is just relocating or render the same image few pixels away every frame.
 
+![element box diagram](/images/element-box-diagram.png)
+
+get the current position
+
+```this.render.getBoundingClientRect('position').left```
+
+next position is **entity.speed** pixels away from current position
+
 
 ### game logic
 
 Since the same positioning and moving functions are needed for all the moving stuff in the game a class named **Entity** is created with these functionalities.
 
-The **Entity** class is extended to other classes to create objects with diffrent properties.
+
+
+```
+entity.xposition()  //get position in horizontal axis
+
+entity.yposition()  //get position in vertical axis
+
+entity.move(x, y, bordered = true)  //move object to (x,y)
+```
+
+The **Entity** class is extended to other classes to create objects with diffrent properties such as shooting and death animation.
 
 * player
 
@@ -70,15 +88,18 @@ The **Entity** class is extended to other classes to create objects with diffren
 * projectile
 
 
+
+
 #### Collision
 
 For detecting collisions the distance between the ship and all the projectiles in the game is calculated every frame.
 
-![element box diagram](/images/element-box-diagram.png)
 
 ### user input
 
 Every frame the state of the input is checked then the corresponds action is excuted.
+
+The state of the input is changed only when the event is occured.
 
 ## wireframe
 
