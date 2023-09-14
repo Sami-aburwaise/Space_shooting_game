@@ -88,7 +88,15 @@ The **Entity** class is extended to other classes to create objects with diffren
 * projectile
 
 
+#### Timimg
 
+Some funcions are not supposed to invoked every every frame. A cout down timer is made to activate the function when it reachs 0.
+
+```
+  //cooldown counter
+  player.coolDownCounter =
+    player.coolDownCounter > 0 ? (player.coolDownCounter -= 1) : 0
+```
 
 #### Collision
 
@@ -115,3 +123,7 @@ The website has two html pages. The main page showing the title and color select
 
 view progress in Trello through this 
 [link](https://trello.com/invite/b/vWWqVCgA/ATTIcddb1bba33c5ed8bf5f7523be2d4aa844875E7C2/game)
+
+## credits
+
+[mdn web docs](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)
