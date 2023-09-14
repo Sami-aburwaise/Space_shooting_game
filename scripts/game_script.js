@@ -379,7 +379,7 @@ const spawnMotherShip = () => {
     motherShipImg
   )
   motherShip.render.width = 250
-  motherShip.health = 15
+  motherShip.health = 7
   motherShip.speed += 10
   enemyList.push(motherShip)
 }
