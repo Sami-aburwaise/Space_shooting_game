@@ -20,6 +20,9 @@ linkedinLogo.addEventListener('mouseover', () => {
 linkedinLogo.addEventListener('mouseout', () => {
   linkedinLogo.classList.remove('hovered')
 })
+linkedinLogo.addEventListener('click', () => {
+  window.location.replace('https://www.linkedin.com/in/sami-isa/')
+})
 
 for (let i = 0; i < 100; i++) {
   const star = document.createElement('img')
