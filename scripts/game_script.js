@@ -578,3 +578,48 @@ for (let i = 0; i < 100; i++) {
   star.style.left = Math.floor(Math.random() * innerWidth) + 'px'
   star.style.top = Math.floor(Math.random() * window.innerHeight) + 'px'
 }
+
+// web socket connection
+const socket = new WebSocket('wss://socketserver-game-test.onrender.com')
+
+socket.addEventListener('open', () => {
+  console.log('Connected to the server')
+})
+
+socket.addEventListener('message', (event) => {
+  console.log(`Message from server: ${event.data}`)
+  const data = JSON.parse(event.data)
+
+  // Check if any input should start the game (same logic as keyboard)
+  if (gameOver && player.alive && !gameFinished) {
+    gameOver = false
+    h1Display.innerText = ''
+    h2Display.innerText = ''
+  }
+
+  if (gameOver) {
+    return
+  }
+
+  if (data.action === 'fire') {
+    player.shoot()
+  }
+  if (data.action === 'move') {
+    if (data.direction.x == -1) {
+      inputLeft = true
+    } else if (data.direction.x == 1) {
+      inputRight = true
+    } else {
+      inputLeft = false
+      inputRight = false
+    }
+    if (data.direction.y == 1) {
+      inputUp = true
+    } else if (data.direction.y == -1) {
+      inputDown = true
+    } else {
+      inputUp = false
+      inputDown = false
+    }
+  }
+})

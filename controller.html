@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Controller</title>
+  </head>
+  <body style="height: 90vh;display: flex; justify-content: center; align-items: center;" class="black">
+    <div>
+      
+      <button class="fire-button" onclick="fire()">
+        <h1 style="margin: 0;">Fire</h1>
+      </button>
+  </body>
+  <script>
+    const ws = new WebSocket('wss://socketserver-game-test.onrender.com')
+    
+    // Store pending messages for latency measurement
+    const pendingMessages = new Map()
+    
+    ws.onopen = () => {
+      console.log('WebSocket connection established')
+    }
+    
+    ws.onmessage = (event) => {
+      const receivedTime = Date.now()
+      try {
+        const data = JSON.parse(event.data)
+        if (data.timestamp && pendingMessages.has(data.timestamp)) {
+          const sentTime = pendingMessages.get(data.timestamp)
+          const latency = receivedTime - sentTime
+          console.log(`${data.action} - Round-trip latency: ${latency}ms`)
+          pendingMessages.delete(data.timestamp)
+        }
+        console.log('Server echoed back:', data)
+      } catch (e) {
+        console.log('Received non-JSON message:', event.data)
+      }
+    }
+
+    const fire = () => {
+      const timestamp = Date.now()
+      const message = JSON.stringify({ action: 'fire', timestamp: timestamp })
+      ws.send(message)
+      pendingMessages.set(timestamp, timestamp)
+      console.log(`Fire sent at: ${timestamp}`)
+      document.body.classList.add('flash')
+      document.body.classList.remove('black')
+      setTimeout(() => {
+        document.body.classList.remove('flash')
+        document.body.classList.add('black')
+      }, 100)
+    }
+
+    let startX = 0
+    let startY = 0
+    // send delta x and y coordinates on touch move
+    window.addEventListener('touchstart', (event) => {
+      const touch = event.touches[0]
+      startX = touch.clientX
+      startY = touch.clientY
+    })
+
+    let direction = { x: 0, y: 0 }
+    const threshold = 10
+
+    // Function to compare two direction objects
+    const directionsEqual = (dir1, dir2) => {
+      return dir1.x === dir2.x && dir1.y === dir2.y
+    }
+
+    window.addEventListener('touchmove', (event) => {
+      const touch = event.touches[0]
+      let inputDirection = { x: 0, y: 0 }
+      if (touch.clientX - startX > threshold) {
+        inputDirection.x = 1
+      } else if (touch.clientX - startX < -threshold) {
+        inputDirection.x = -1
+      } else {
+        inputDirection.x = 0
+      }
+      if (touch.clientY - startY > threshold) {
+        inputDirection.y = -1
+      } else if (touch.clientY - startY < -threshold) {
+        inputDirection.y = 1
+      } else {
+        inputDirection.y = 0
+      }
+      if (!directionsEqual(inputDirection, direction)) {
+        const timestamp = Date.now()
+        const message = JSON.stringify({ action: 'move', direction: inputDirection, timestamp: timestamp })
+        ws.send(message)
+        pendingMessages.set(timestamp, timestamp)
+        direction = inputDirection
+        console.log(`Move sent at: ${timestamp}`)
+      }
+    })
+
+    window.addEventListener('touchend', () => {
+      direction = { x: 0, y: 0 }
+      const timestamp = Date.now()
+      const message = JSON.stringify({ action: 'move', direction: direction, timestamp: timestamp })
+      ws.send(message)
+      pendingMessages.set(timestamp, timestamp)
+      console.log(`Touch end sent at: ${timestamp}`)
+    })
+  </script>
+
+  <style>
+    .black {
+      background-color: black;
+    }
+    .flash {
+      background-color: rgb(109, 0, 0);
+      animation: flash 0.5s ease-in-out;
+    }
+    /*/
+    do not alllow zoom or scroll
+    /*/
+    body {
+      margin: 0;
+      overflow: hidden;
+      touch-action: none; /* Prevents default touch actions like scrolling */
+    }
+    .fire-button {
+      padding: 30px 80px;
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      outline: solid white;
+      background-color: black;
+      border-radius: 10px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
+</html>
