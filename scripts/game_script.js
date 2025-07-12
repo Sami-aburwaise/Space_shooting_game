@@ -1,7 +1,7 @@
-const h1Dsiplay = document.querySelector('#displayPanelH1')
-const h2Dsiplay = document.querySelector('#displayPanelH2')
+const h1Display = document.querySelector('#displayPanelH1')
+const h2Display = document.querySelector('#displayPanelH2')
 let gameOver = true
-let levelFinneshed = false
+let levelFinished = false
 let gameFinished = false
 
 const playerImg = document.createElement('img')
@@ -14,9 +14,9 @@ let projectileList = []
 let enemyList = []
 let explosionList = []
 
-//game panel dimentions
+//game panel dimensions
 let panelWidth = 720
-let panelHight = 480
+let panelHeight = 480
 let inputRight = false
 let inputLeft = false
 let inputUp = false
@@ -67,7 +67,7 @@ class Entity {
       this.render.style.top = this.yPosition() + y + 'px'
     } else if (
       (y > 0 &&
-        this.yPosition() < panelYpositon + panelHight - this.render.height) ||
+        this.yPosition() < panelYpositon + panelHeight - this.render.height) ||
       !bordered
     ) {
       this.render.style.top = this.yPosition() + y + 'px'
@@ -100,7 +100,7 @@ class Player extends Entity {
       this.shoots += 1
     }
   }
-  checkCollsion() {
+  checkCollision() {
     projectileList.forEach((projectile) => {
       if (projectile.friendly) {
         return
@@ -200,7 +200,7 @@ class Enemy extends Entity {
     this.yVelocity = this.speed * (Math.random() - Math.random())
   }
 
-  checkCollsion() {
+  checkCollision() {
     projectileList.forEach((projectile) => {
       if (!projectile.friendly) {
         return
@@ -219,10 +219,10 @@ class Enemy extends Entity {
           projectile.alive = false
           this.alive = false
           player.kills += 1
-          //spawn explostion
+          //spawn explosion
           const explodeImg = document.createElement('img')
           explodeImg.setAttribute('src', this.explodeImgDir)
-          const explosion = new Explosion('explostion')
+          const explosion = new Explosion('explosion')
           explosionList.push(explosion)
           explosion.spawn(this.xPosition(), this.yPosition(), explodeImg)
           explosion.render.width = this.render.width
@@ -273,7 +273,7 @@ let player = new Player('player')
 
 player.spawn(
   panelXpositon + panelWidth / 2,
-  panelYpositon + panelHight - 75,
+  panelYpositon + panelHeight - 75,
   playerImg
 )
 
@@ -294,7 +294,7 @@ const managePlayer = () => {
   } else if (inputDown) {
     player.move(0, player.speed)
   }
-  player.checkCollsion()
+  player.checkCollision()
 
   //cooldown counter
   player.coolDownCounter =
@@ -332,7 +332,7 @@ const manageEnemies = () => {
     }
     enemy.shoot()
     enemy.moveAround()
-    enemy.checkCollsion()
+    enemy.checkCollision()
     enemy.coolDownCounter =
       enemy.coolDownCounter > 0 ? (enemy.coolDownCounter -= 1) : 0
 
@@ -397,14 +397,14 @@ const manageGame = () => {
     player.render.remove()
     gameOver = true
     player.level = 0
-    h1Dsiplay.innerText = 'You lost'
-    h2Dsiplay.innerText = 'press enter to play again'
-  } else if (enemyList.length == 0 && !levelFinneshed && !gameOver) {
+    h1Display.innerText = 'You lost'
+    h2Display.innerText = 'press enter to play again'
+  } else if (enemyList.length == 0 && !levelFinished && !gameOver) {
     gameOver = true
-    levelFinneshed = true
+    levelFinished = true
     player.level += 1
-    h1Dsiplay.innerText = 'You won'
-    h2Dsiplay.innerText = 'press any button to continue'
+    h1Display.innerText = 'You won'
+    h2Display.innerText = 'press any button to continue'
     //remove projectiles so no one get hurt
     projectileList.forEach((projectile) => {
       projectile.render.remove()
@@ -412,8 +412,8 @@ const manageGame = () => {
     projectileList = []
   }
 
-  if (levelFinneshed && gameOver) {
-    levelFinneshed = false
+  if (levelFinished && gameOver) {
+    levelFinished = false
 
     switch (player.level) {
       case 1:
@@ -464,8 +464,8 @@ const manageGame = () => {
         spawnMotherShip()
         break
       default:
-        h1Dsiplay.innerText = 'You Won'
-        h2Dsiplay.innerText = 'Game finishsed, press enter to play again'
+        h1Display.innerText = 'You Won'
+        h2Display.innerText = 'Game finished, press enter to play again'
         gameOver = true
         gameFinished = true
         break
@@ -492,7 +492,7 @@ const runFrames = setInterval(() => {
 
 const resetGame = () => {
   gameOver = true
-  levelFinneshed = false
+  levelFinished = false
   gameFinished = false
   //remove all projectiles
   if (projectileList.length != 0) {
@@ -515,11 +515,11 @@ const resetGame = () => {
   player = new Player('player')
   player.spawn(
     panelXpositon + panelWidth / 2,
-    panelYpositon + panelHight - 75,
+    panelYpositon + panelHeight - 75,
     playerImg
   )
-  h1Dsiplay.innerText = 'LEVEL 1'
-  h2Dsiplay.innerText = 'Press any button to start'
+  h1Display.innerText = 'LEVEL 1'
+  h2Display.innerText = 'Press any button to start'
 }
 
 //event listners and input
@@ -537,8 +537,8 @@ document.body.addEventListener('keydown', (e) => {
   }
   if (gameOver && player.alive && !gameFinished) {
     gameOver = false
-    h1Dsiplay.innerText = ''
-    h2Dsiplay.innerText = ''
+    h1Display.innerText = ''
+    h2Display.innerText = ''
   }
 })
 
