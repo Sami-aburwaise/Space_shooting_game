@@ -579,47 +579,126 @@ for (let i = 0; i < 100; i++) {
   star.style.top = Math.floor(Math.random() * window.innerHeight) + 'px'
 }
 
-// web socket connection
-const socket = new WebSocket('wss://socketserver-game-test.onrender.com')
+// --- WebRTC Setup ---
+const signalingSocket = new WebSocket(
+  `wss://socketserver-game-test.onrender.com`
+)
 
-socket.addEventListener('open', () => {
-  console.log('Connected to the server')
-})
+// const signalingSocket = new WebSocket(`ws://192.168.101.19:8088`)
 
-socket.addEventListener('message', (event) => {
-  console.log(`Message from server: ${event.data}`)
-  const data = JSON.parse(event.data)
+let peerConnection = null
+let dataChannel = null
 
-  // Check if any input should start the game (same logic as keyboard)
-  if (gameOver && player.alive && !gameFinished) {
-    gameOver = false
-    h1Display.innerText = ''
-    h2Display.innerText = ''
+signalingSocket.onopen = () => {
+  // Game is always the non-initiator (waits for offer)
+  setupPeer(false)
+}
+
+signalingSocket.onmessage = async (event) => {
+  let data = event.data
+  if (data instanceof Blob) {
+    data = await data.text()
   }
-
-  if (gameOver) {
+  let msg
+  try {
+    msg = JSON.parse(data)
+  } catch (e) {
+    console.warn('Non-JSON signaling message:', data)
     return
   }
+  if (msg.sdp) {
+    if (!peerConnection) setupPeer(false)
+    await peerConnection.setRemoteDescription(
+      new RTCSessionDescription(msg.sdp)
+    )
+    if (msg.sdp.type === 'offer') {
+      const answer = await peerConnection.createAnswer()
+      await peerConnection.setLocalDescription(answer)
+      signalingSocket.send(
+        JSON.stringify({ sdp: peerConnection.localDescription })
+      )
+    }
+  } else if (msg.candidate) {
+    if (peerConnection) {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate))
+    }
+  }
+}
 
-  if (data.action === 'fire') {
-    player.shoot()
+function setupPeer(initiator) {
+  peerConnection = new RTCPeerConnection()
+  peerConnection.ondatachannel = (e) => {
+    dataChannel = e.channel
+    setupDataChannel()
   }
-  if (data.action === 'move') {
-    if (data.direction.x == -1) {
-      inputLeft = true
-    } else if (data.direction.x == 1) {
-      inputRight = true
-    } else {
-      inputLeft = false
-      inputRight = false
-    }
-    if (data.direction.y == 1) {
-      inputUp = true
-    } else if (data.direction.y == -1) {
-      inputDown = true
-    } else {
-      inputUp = false
-      inputDown = false
+  peerConnection.onicecandidate = (e) => {
+    if (e.candidate) {
+      signalingSocket.send(JSON.stringify({ candidate: e.candidate }))
     }
   }
-})
+}
+
+function setupDataChannel() {
+  dataChannel.onopen = () => {
+    console.log('WebRTC data channel open (game)')
+  }
+  dataChannel.onmessage = (event) => {
+    let data
+    try {
+      data = JSON.parse(event.data)
+    } catch (e) {
+      return
+    }
+    // Echo input timestamp back to controller for delay measurement
+    if (
+      (data.action === 'fire' || data.action === 'move') &&
+      typeof data.timestamp === 'number'
+    ) {
+      dataChannel.send(
+        JSON.stringify({ action: 'echo', timestamp: data.timestamp })
+      )
+    }
+    // Print input delay for each action message
+    if (data.timestamp) {
+      const now = Date.now()
+      const delay = now - data.timestamp
+      console.log(
+        '[Game] Received action:',
+        data.action,
+        'Delay:',
+        delay + 'ms',
+        data
+      )
+    }
+    // Check if any input should start the game (same logic as keyboard)
+    if (gameOver && player.alive && !gameFinished) {
+      gameOver = false
+      h1Display.innerText = ''
+      h2Display.innerText = ''
+    }
+    if (gameOver) {
+      return
+    }
+    if (data.action === 'fire') {
+      player.shoot()
+    }
+    if (data.action === 'move') {
+      if (data.direction.x == -1) {
+        inputLeft = true
+      } else if (data.direction.x == 1) {
+        inputRight = true
+      } else {
+        inputLeft = false
+        inputRight = false
+      }
+      if (data.direction.y == 1) {
+        inputUp = true
+      } else if (data.direction.y == -1) {
+        inputDown = true
+      } else {
+        inputUp = false
+        inputDown = false
+      }
+    }
+  }
+}

@@ -11,50 +11,128 @@
       <button class="fire-button" onclick="fire()">
         <h1 style="margin: 0;">Fire</h1>
       </button>
+      <div id="delayDisplay" style="margin-top: 40px; color: white; font-size: 1.5em; text-align: center;"></div>
   </body>
   <script>
-    const ws = new WebSocket('wss://socketserver-game-test.onrender.com')
-    
-    // Store pending messages for latency measurement
-    const pendingMessages = new Map()
-    
-    ws.onopen = () => {
-      console.log('WebSocket connection established')
-    }
-    
-    ws.onmessage = (event) => {
-      const receivedTime = Date.now()
-      try {
-        const data = JSON.parse(event.data)
-        if (data.timestamp && pendingMessages.has(data.timestamp)) {
-          const sentTime = pendingMessages.get(data.timestamp)
-          const latency = receivedTime - sentTime
-          console.log(`${data.action} - Round-trip latency: ${latency}ms`)
-          pendingMessages.delete(data.timestamp)
-        }
-        console.log('Server echoed back:', data)
-      } catch (e) {
-        console.log('Received non-JSON message:', event.data)
+    // --- WebRTC Setup ---
+    const signalingSocket = new WebSocket('wss://socketserver-game-test.onrender.com')
+    // const signalingSocket = new WebSocket('ws://192.168.101.19:8088')
+    let peerConnection = null
+    let dataChannel = null
+    let isInitiator = false
+
+    signalingSocket.onopen = () => {
+      // Decide initiator by random (or use a button/UI)
+      isInitiator = confirm('Are you the controller? OK for Yes, Cancel for No.')
+      if (isInitiator) {
+        setupPeer(true)
       }
     }
 
+    signalingSocket.onmessage = async (event) => {
+      let data = event.data;
+      if (data instanceof Blob) {
+        data = await data.text();
+      }
+      let msg;
+      try {
+        msg = JSON.parse(data);
+      } catch (e) {
+        console.warn('Non-JSON signaling message:', data);
+        return;
+      }
+      if (msg.sdp) {
+        if (!peerConnection) {
+          setupPeer(false)
+        }
+        // Only set remote description if not already set to this SDP
+        const sdpType = msg.sdp.type
+        const currentRemote = peerConnection.remoteDescription && peerConnection.remoteDescription.sdp
+        if (!currentRemote || peerConnection.remoteDescription.type !== sdpType || peerConnection.remoteDescription.sdp !== msg.sdp.sdp) {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+        }
+        if (msg.sdp.type === 'offer') {
+          const answer = await peerConnection.createAnswer()
+          await peerConnection.setLocalDescription(answer)
+          signalingSocket.send(JSON.stringify({ sdp: peerConnection.localDescription }))
+        }
+      } else if (msg.candidate) {
+        if (peerConnection) {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate))
+        }
+      }
+    }
+
+    function setupPeer(initiator) {
+      peerConnection = new RTCPeerConnection()
+      if (initiator) {
+        dataChannel = peerConnection.createDataChannel('actions')
+        setupDataChannel()
+        peerConnection.onicecandidate = (e) => {
+          if (e.candidate) {
+            signalingSocket.send(JSON.stringify({ candidate: e.candidate }))
+          }
+        }
+        peerConnection.createOffer().then(offer => {
+          peerConnection.setLocalDescription(offer)
+          signalingSocket.send(JSON.stringify({ sdp: offer }))
+        })
+      } else {
+        peerConnection.ondatachannel = (e) => {
+          dataChannel = e.channel
+          setupDataChannel()
+        }
+        peerConnection.onicecandidate = (e) => {
+          if (e.candidate) {
+            signalingSocket.send(JSON.stringify({ candidate: e.candidate }))
+          }
+        }
+      }
+    }
+
+    function setupDataChannel() {
+      dataChannel.onopen = () => {
+        console.log('WebRTC data channel open')
+      }
+      // Input echo delay measurement
+      dataChannel.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data)
+          if (msg.action === 'echo' && typeof msg.timestamp === 'number') {
+            const now = Date.now()
+            const diff = now - msg.timestamp
+            const delayDiv = document.getElementById('delayDisplay')
+            if (delayDiv) {
+              delayDiv.textContent = `Input Delay: ${diff} ms`
+            }
+            console.log('[Controller] Sent timestamp:', msg.timestamp, '| Received timestamp:', now, '| Input Delay:', diff + 'ms', msg)
+            return
+          }
+        } catch (e) {}
+        // Optionally handle messages from game
+        console.log('Received from game:', event.data)
+      }
+    }
+
+    // --- Controller Actions ---
+    // (Already declared above, no duplicates)
+
+    // --- Controller Actions ---
     const fire = () => {
-      const timestamp = Date.now()
-      const message = JSON.stringify({ action: 'fire', timestamp: timestamp })
-      ws.send(message)
-      pendingMessages.set(timestamp, timestamp)
-      console.log(`Fire sent at: ${timestamp}`)
-      document.body.classList.add('flash')
-      document.body.classList.remove('black')
-      setTimeout(() => {
-        document.body.classList.remove('flash')
-        document.body.classList.add('black')
-      }, 100)
+      if (dataChannel && dataChannel.readyState === 'open') {
+        const timestamp = Date.now()
+        dataChannel.send(JSON.stringify({ action: 'fire', timestamp }))
+        document.body.classList.add('flash')
+        document.body.classList.remove('black')
+        setTimeout(() => {
+          document.body.classList.remove('flash')
+          document.body.classList.add('black')
+        }, 100)
+      }
     }
 
     let startX = 0
     let startY = 0
-    // send delta x and y coordinates on touch move
     window.addEventListener('touchstart', (event) => {
       const touch = event.touches[0]
       startX = touch.clientX
@@ -63,11 +141,7 @@
 
     let direction = { x: 0, y: 0 }
     const threshold = 10
-
-    // Function to compare two direction objects
-    const directionsEqual = (dir1, dir2) => {
-      return dir1.x === dir2.x && dir1.y === dir2.y
-    }
+    const directionsEqual = (dir1, dir2) => dir1.x === dir2.x && dir1.y === dir2.y
 
     window.addEventListener('touchmove', (event) => {
       const touch = event.touches[0]
@@ -87,22 +161,20 @@
         inputDirection.y = 0
       }
       if (!directionsEqual(inputDirection, direction)) {
-        const timestamp = Date.now()
-        const message = JSON.stringify({ action: 'move', direction: inputDirection, timestamp: timestamp })
-        ws.send(message)
-        pendingMessages.set(timestamp, timestamp)
         direction = inputDirection
-        console.log(`Move sent at: ${timestamp}`)
+        if (dataChannel && dataChannel.readyState === 'open') {
+          const timestamp = Date.now()
+          dataChannel.send(JSON.stringify({ action: 'move', direction: inputDirection, timestamp }))
+        }
       }
     })
 
     window.addEventListener('touchend', () => {
       direction = { x: 0, y: 0 }
-      const timestamp = Date.now()
-      const message = JSON.stringify({ action: 'move', direction: direction, timestamp: timestamp })
-      ws.send(message)
-      pendingMessages.set(timestamp, timestamp)
-      console.log(`Touch end sent at: ${timestamp}`)
+      if (dataChannel && dataChannel.readyState === 'open') {
+        const timestamp = Date.now()
+        dataChannel.send(JSON.stringify({ action: 'move', direction: direction, timestamp }))
+      }
     })
   </script>
 
