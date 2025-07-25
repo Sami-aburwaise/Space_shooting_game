@@ -105,12 +105,13 @@ function setupPeer(initiator) {
           const msg = JSON.parse(event.data)
           if (msg.action === 'echo' && typeof msg.timestamp === 'number') {
             const now = Date.now()
-            const diff = now - msg.timestamp
+            const rtt = now - msg.timestamp
+            const oneWayDelay = Math.round(rtt / 2)
             const delayDiv = document.getElementById('delayDisplay')
             if (delayDiv) {
-              delayDiv.textContent = `Input Delay: ${diff} ms`
+              delayDiv.textContent = `Input Lag: ${oneWayDelay} ms`
             }
-            console.log('[Controller] Sent timestamp:', msg.timestamp, '| Received timestamp:', now, '| Input Delay:', diff + 'ms', msg)
+            console.log('[Controller] Sent timestamp:', msg.timestamp, '| Received timestamp:', now, '| RTT:', rtt + 'ms', '| One-way input lag:', oneWayDelay + 'ms', msg)
             return
           }
         } catch (e) {}
