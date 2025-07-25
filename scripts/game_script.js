@@ -626,7 +626,12 @@ signalingSocket.onmessage = async (event) => {
 }
 
 function setupPeer(initiator) {
-  peerConnection = new RTCPeerConnection()
+  peerConnection = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  })
   peerConnection.ondatachannel = (e) => {
     dataChannel = e.channel
     setupDataChannel()

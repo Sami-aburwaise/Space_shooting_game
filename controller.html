@@ -15,8 +15,8 @@
   </body>
   <script>
     // --- WebRTC Setup ---
+    // Use your own signaling server, but public STUN for ICE
     const signalingSocket = new WebSocket('wss://socketserver-game-test.onrender.com')
-    // const signalingSocket = new WebSocket('ws://192.168.101.19:8088')
     let peerConnection = null
     let dataChannel = null
     let isInitiator = false
@@ -63,8 +63,13 @@
       }
     }
 
-    function setupPeer(initiator) {
-      peerConnection = new RTCPeerConnection()
+function setupPeer(initiator) {
+      peerConnection = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      })
       if (initiator) {
         dataChannel = peerConnection.createDataChannel('actions')
         setupDataChannel()
